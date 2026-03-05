@@ -1,0 +1,61 @@
+import { useState } from 'react';
+import Hero from '../components/landing/Hero';
+import Features from '../components/landing/Features';
+import Pricing from '../components/landing/Pricing';
+import ContactForm from '../components/landing/ContactForm';
+import Footer from '../components/landing/Footer';
+import PaymentModal from '../components/landing/PaymentModal';
+import ThemeToggle from '../components/ThemeToggle';
+import { LogIn } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+export default function LandingPage() {
+    const [selectedPlan, setSelectedPlan] = useState(null);
+
+    return (
+        <div className="min-h-screen" style={{ background: 'var(--color-bg-primary)' }}>
+            {/* Navbar */}
+            <nav className="fixed top-0 left-0 right-0 z-40 glass">
+                <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+                    <a href="#" className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                        Mi<span className="gradient-text">Venta</span>
+                    </a>
+                    <div className="hidden md:flex items-center gap-8">
+                        {['Features', 'Pricing', 'Contact'].map((item) => (
+                            <a
+                                key={item}
+                                href={`#${item.toLowerCase()}`}
+                                className="text-sm font-medium transition-colors duration-300 hover:opacity-80"
+                                style={{ color: 'var(--color-text-secondary)' }}
+                            >
+                                {item}
+                            </a>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <ThemeToggle />
+                        <Link
+                            to="/login"
+                            className="btn-primary text-sm py-2 px-4"
+                        >
+                            <LogIn size={16} />
+                            Sign In
+                        </Link>
+                    </div>
+                </div>
+            </nav>
+
+            {/* Sections */}
+            <Hero />
+            <Features />
+            <Pricing onSelectPlan={setSelectedPlan} />
+            <ContactForm />
+            <Footer />
+
+            {/* Payment Modal */}
+            {selectedPlan && (
+                <PaymentModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />
+            )}
+        </div>
+    );
+}
