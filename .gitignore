@@ -1,2 +1,5 @@
 /.agents
 /skills-lock.json
+/backend/.env
+/backend/node_modules
+/frontend/.env

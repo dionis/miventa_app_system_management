@@ -27,7 +27,7 @@ function App() {
           <Route
             path="/admin"
             element={
-              <ProtectedRoute roles={['admin', 'staff']}>
+              <ProtectedRoute roles={['admin', 'staff', 'customer']}>
                 <AdminLayout />
               </ProtectedRoute>
             }
@@ -35,8 +35,22 @@ function App() {
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="referrals" element={<Referrals />} />
-            <Route path="users" element={<Users />} />
-            <Route path="faqs" element={<FAQManager />} />
+            <Route
+              path="users"
+              element={
+                <ProtectedRoute roles={['admin', 'staff']}>
+                  <Users />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="faqs"
+              element={
+                <ProtectedRoute roles={['admin', 'staff']}>
+                  <FAQManager />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="logs"
               element={

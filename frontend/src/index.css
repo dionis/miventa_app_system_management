@@ -2,58 +2,83 @@
 
 /* ========== Design Tokens / CSS Custom Properties ========== */
 :root {
-  /* Colors - Light Mode */
+  /* Colors - Light Mode (Slate/Zinc modern approach) */
   --color-bg-primary: #ffffff;
   --color-bg-secondary: #f8fafc;
+  /* slate-50 */
   --color-bg-tertiary: #f1f5f9;
+  /* slate-100 */
   --color-bg-card: #ffffff;
   --color-bg-sidebar: #0f172a;
   --color-text-primary: #0f172a;
+  /* slate-900 for sufficient contrast */
   --color-text-secondary: #475569;
-  --color-text-muted: #94a3b8;
+  /* slate-600 */
+  --color-text-muted: #64748b;
+  /* slate-500 */
   --color-border: #e2e8f0;
+  /* slate-200 */
   --color-border-hover: #cbd5e1;
+  /* slate-300 */
 
-  /* Brand / Accent */
+  /* Brand / Accent - Indigo focus */
   --color-brand: #6366f1;
+  /* indigo-500 */
   --color-brand-hover: #4f46e5;
+  /* indigo-600 */
   --color-brand-light: #e0e7ff;
+  /* indigo-100 */
   --color-brand-gradient-from: #6366f1;
   --color-brand-gradient-to: #8b5cf6;
+  /* violet-500 */
 
   /* Status */
   --color-success: #10b981;
+  /* emerald-500 */
   --color-warning: #f59e0b;
+  /* amber-500 */
   --color-error: #ef4444;
+  /* red-500 */
   --color-info: #3b82f6;
+  /* blue-500 */
 
-  /* Misc */
+  /* Shadows - larger and softer */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.025);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.025);
+
   --radius: 0.75rem;
   --radius-lg: 1rem;
 }
 
 /* Dark Mode */
 .dark {
-  --color-bg-primary: #0f172a;
-  --color-bg-secondary: #1e293b;
-  --color-bg-tertiary: #334155;
-  --color-bg-card: #1e293b;
-  --color-bg-sidebar: #0a0f1c;
-  --color-text-primary: #f1f5f9;
+  --color-bg-primary: #020617;
+  /* slate-950 */
+  --color-bg-secondary: #0f172a;
+  /* slate-900 */
+  --color-bg-tertiary: #1e293b;
+  /* slate-800 */
+  --color-bg-card: #0f172a;
+  --color-bg-sidebar: #020617;
+  --color-text-primary: #f8fafc;
+  /* slate-50 */
   --color-text-secondary: #94a3b8;
+  /* slate-400 */
   --color-text-muted: #64748b;
-  --color-border: #334155;
-  --color-border-hover: #475569;
+  /* slate-500 */
+  --color-border: #1e293b;
+  /* slate-800 */
+  --color-border-hover: #334155;
+  /* slate-700 */
   --color-brand-light: #312e81;
+  /* indigo-900 */
 
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
 }
 
 /* ========== Base Styles ========== */
@@ -77,10 +102,16 @@ body {
 
 /* ========== Utility Classes ========== */
 .glass {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.dark .glass {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .gradient-text {
@@ -98,16 +129,22 @@ body {
   font-weight: 600;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease-in-out;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   text-decoration: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 8px 20px -5px rgba(99, 102, 241, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 .btn-secondary {
@@ -118,17 +155,21 @@ body {
   font-weight: 600;
   border: 2px solid var(--color-brand);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease-in-out;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   text-decoration: none;
 }
 
 .btn-secondary:hover {
-  background: var(--color-brand);
-  color: white;
+  background: var(--color-brand-light);
   transform: translateY(-2px);
+}
+
+.dark .btn-secondary:hover {
+  background: rgba(99, 102, 241, 0.1);
 }
 
 .card {
@@ -137,12 +178,12 @@ body {
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   box-shadow: var(--shadow-sm);
-  transition: all 0.3s ease;
+  transition: all 0.2s ease-in-out;
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-brand);
 }
 
 /* ========== Animations ========== */
@@ -151,6 +192,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -158,18 +200,37 @@ body {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.6); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(99, 102, 241, 0.6);
+  }
 }
 
 @keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .animate-fadeInUp {

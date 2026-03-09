@@ -7,4 +7,6 @@ export declare class UsersService {
         limit: number;
     }>;
     findOne(id: string): Promise<any>;
+    findByEmail(email: string): Promise<any>;
+    create(userData: any): Promise<any>;
 }

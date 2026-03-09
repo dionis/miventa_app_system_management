@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { supabase } from './supabase';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
@@ -8,10 +7,10 @@ const api = axios.create({
 
 // Request interceptor — attach JWT token
 api.interceptors.request.use(
-    async (config) => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.access_token) {
-            config.headers.Authorization = `Bearer ${session.access_token}`;
+    (config) => {
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
@@ -26,7 +25,7 @@ api.interceptors.response.use(
             switch (error.response.status) {
                 case 401:
                     // Token expired — sign out
-                    supabase.auth.signOut();
+                    localStorage.removeItem('access_token');
                     window.location.href = '/login';
                     break;
                 case 403:

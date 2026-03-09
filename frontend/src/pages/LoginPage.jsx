@@ -43,7 +43,7 @@ export default function LoginPage() {
 
             {/* Card */}
             <div className="relative w-full max-w-md">
-                <div className="card" style={{ padding: '2.5rem' }}>
+                <div className="card !p-6 md:!p-10">
                     {/* Header */}
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>
@@ -63,7 +63,7 @@ export default function LoginPage() {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl outline-none transition-all duration-300 focus:ring-2"
+                                className="w-full px-4 py-3 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500"
                                 style={{
                                     background: 'var(--color-bg-tertiary)',
                                     border: '1px solid var(--color-border)',
@@ -81,7 +81,7 @@ export default function LoginPage() {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-3 pr-12 rounded-xl outline-none transition-all duration-300 focus:ring-2"
+                                    className="w-full px-4 py-3 pr-12 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500"
                                     style={{
                                         background: 'var(--color-bg-tertiary)',
                                         border: '1px solid var(--color-border)',
@@ -92,7 +92,7 @@ export default function LoginPage() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full"
                                     style={{ color: 'var(--color-text-muted)' }}
                                 >
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

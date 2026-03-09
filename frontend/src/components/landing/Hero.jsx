@@ -32,25 +32,25 @@ export default function Hero() {
 
                     {/* CTA Buttons */}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
-                        <a href="#pricing" className="btn-primary text-lg px-8 py-4">
+                        <a href="#pricing" className="btn-primary text-lg px-8 py-4 w-full sm:w-auto">
                             Get Started
                             <ArrowRight size={20} />
                         </a>
-                        <a href="#features" className="btn-secondary text-lg px-8 py-4">
+                        <a href="#features" className="btn-secondary text-lg px-8 py-4 w-full sm:w-auto">
                             Learn More
                         </a>
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-3 gap-8 mt-20 max-w-xl mx-auto animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16 max-w-xl mx-auto animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
                         {[
                             { value: '10K+', label: 'Active Users' },
                             { value: '99.9%', label: 'Uptime' },
                             { value: '24/7', label: 'Support' },
                         ].map((stat) => (
-                            <div key={stat.label} className="text-center">
-                                <div className="text-3xl font-bold gradient-text">{stat.value}</div>
-                                <div className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>{stat.label}</div>
+                            <div key={stat.label} className="text-center p-4 rounded-xl glass">
+                                <div className="text-3xl md:text-4xl font-bold gradient-text">{stat.value}</div>
+                                <div className="text-sm mt-2 font-medium" style={{ color: 'var(--color-text-secondary)' }}>{stat.label}</div>
                             </div>
                         ))}
                     </div>
