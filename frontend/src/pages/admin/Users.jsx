@@ -31,74 +31,74 @@ export default function UsersPage() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-10 animate-fadeInUp">
             <div>
-                <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Users</h1>
-                <p className="mt-1" style={{ color: 'var(--color-text-secondary)' }}>Browse and search registered customers</p>
+                <h1 className="text-4xl md:text-5xl font-black mb-2 leading-tight" style={{ color: 'var(--color-text-primary)' }}>Users</h1>
+                <p className="text-lg md:text-xl" style={{ color: 'var(--color-text-secondary)' }}>Browse and search registered customers.</p>
             </div>
 
             {/* Search */}
-            <form onSubmit={handleSearch} className="flex gap-3">
+            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
-                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-text-muted)' }} />
+                    <Search size={22} className="absolute left-5 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-text-muted)' }} />
                     <input
                         type="text"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl outline-none"
-                        style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                        className="w-full pl-14 pr-6 py-5 rounded-2xl outline-none text-lg shadow-sm"
+                        style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
                         placeholder="Search by name or phone..."
                     />
                 </div>
-                <button type="submit" className="btn-secondary">Search</button>
+                <button type="submit" className="btn-secondary py-5 px-10 text-lg rounded-2xl">Search</button>
             </form>
 
             {/* Table */}
-            <div className="card overflow-hidden" style={{ padding: 0 }}>
+            <div className="card shadow-2xl overflow-hidden rounded-[2rem]" style={{ padding: 0, border: '1px solid var(--color-border)' }}>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full">
                         <thead>
-                            <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                            <tr style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)' }}>
                                 {['User', 'Email', 'Role', 'Subscriptions', 'Joined'].map(h => (
-                                    <th key={h} className="text-left px-6 py-4 font-semibold" style={{ color: 'var(--color-text-muted)' }}>{h}</th>
+                                    <th key={h} className="text-left px-8 py-6 text-sm font-black uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>{h}</th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y" style={{ borderColor: 'var(--color-border)' }}>
                             {loading ? (
-                                <tr><td colSpan={5} className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-4 border-t-transparent mx-auto" style={{ borderColor: 'var(--color-brand)', borderTopColor: 'transparent' }}></div></td></tr>
+                                <tr><td colSpan={5} className="text-center py-24"><div className="animate-spin rounded-full h-12 w-12 border-4 border-t-transparent mx-auto" style={{ borderColor: 'var(--color-brand)', borderTopColor: 'transparent' }}></div></td></tr>
                             ) : users.length === 0 ? (
-                                <tr><td colSpan={5} className="text-center py-12" style={{ color: 'var(--color-text-muted)' }}>No users found</td></tr>
+                                <tr><td colSpan={5} className="text-center py-24 text-lg" style={{ color: 'var(--color-text-muted)' }}>No users found</td></tr>
                             ) : users.map((user) => (
-                                <tr key={user.id} className="transition-colors duration-200" style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--color-brand-gradient-from), var(--color-brand-gradient-to))', color: 'white' }}>
-                                                <User size={18} />
+                                <tr key={user.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors duration-200">
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, var(--color-brand-gradient-from), var(--color-brand-gradient-to))', color: 'white' }}>
+                                                <User size={22} />
                                             </div>
-                                            <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{user.full_name || 'N/A'}</span>
+                                            <span className="font-bold text-lg" style={{ color: 'var(--color-text-primary)' }}>{user.full_name || 'N/A'}</span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4" style={{ color: 'var(--color-text-secondary)' }}>{user.email || 'N/A'}</td>
-                                    <td className="px-6 py-4">
-                                        <span className="px-3 py-1 rounded-full text-xs font-semibold capitalize" style={{
+                                    <td className="px-8 py-6 text-base" style={{ color: 'var(--color-text-secondary)' }}>{user.email || 'N/A'}</td>
+                                    <td className="px-8 py-6">
+                                        <span className="px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest" style={{
                                             background: user.role === 'admin' ? 'rgba(99, 102, 241, 0.1)' : user.role === 'staff' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(107, 114, 128, 0.1)',
                                             color: user.role === 'admin' ? 'var(--color-brand)' : user.role === 'staff' ? 'var(--color-info)' : 'var(--color-text-muted)',
                                         }}>
                                             {user.role}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-8 py-6 text-lg font-bold">
                                         {user.subscriptions?.length > 0 ? (
-                                            <div className="flex items-center gap-2">
-                                                <CreditCard size={16} style={{ color: 'var(--color-success)' }} />
+                                            <div className="flex items-center gap-3">
+                                                <CreditCard size={20} style={{ color: 'var(--color-success)' }} />
                                                 <span style={{ color: 'var(--color-text-primary)' }}>{user.subscriptions.length}</span>
                                             </div>
                                         ) : (
                                             <span style={{ color: 'var(--color-text-muted)' }}>None</span>
                                         )}
                                     </td>
-                                    <td className="px-6 py-4" style={{ color: 'var(--color-text-muted)' }}>
+                                    <td className="px-8 py-6 text-base" style={{ color: 'var(--color-text-muted)' }}>
                                         {new Date(user.created_at).toLocaleDateString()}
                                     </td>
                                 </tr>

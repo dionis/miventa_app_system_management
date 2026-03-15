@@ -1,49 +1,52 @@
 import { BarChart3, Shield, Users, CreditCard, LineChart, Globe } from 'lucide-react';
-
-const features = [
-    {
-        icon: BarChart3,
-        title: 'Real-time Analytics',
-        description: 'Track sales, subscriptions and referral performance with beautiful visual dashboards updated in real-time.',
-    },
-    {
-        icon: Shield,
-        title: 'Enterprise Security',
-        description: 'Role-based access control, JWT authentication, and audit logging keep your data safe and traceable.',
-    },
-    {
-        icon: Users,
-        title: 'Referral System',
-        description: 'Built-in referral management with unique codes, tracking, and automated payout calculations.',
-    },
-    {
-        icon: CreditCard,
-        title: 'Smart Payments',
-        description: 'Dynamic QR code generation, multiple subscription plans, and seamless payment flow integration.',
-    },
-    {
-        icon: LineChart,
-        title: 'Growth Insights',
-        description: 'Understand your growth trajectory with monthly analytics, conversion tracking, and KPI monitoring.',
-    },
-    {
-        icon: Globe,
-        title: 'Multi-Platform',
-        description: 'Responsive design works flawlessly on desktop, tablet, and mobile with dark mode support.',
-    },
-];
+import { useTranslation } from 'react-i18next';
 
 export default function Features() {
+    const { t } = useTranslation();
+
+    const features = [
+        {
+            icon: BarChart3,
+            title: t('features.analytics.title'),
+            description: t('features.analytics.description'),
+        },
+        {
+            icon: Shield,
+            title: t('features.security.title'),
+            description: t('features.security.description'),
+        },
+        {
+            icon: Users,
+            title: t('features.referral.title'),
+            description: t('features.referral.description'),
+        },
+        {
+            icon: CreditCard,
+            title: t('features.payments.title'),
+            description: t('features.payments.description'),
+        },
+        {
+            icon: LineChart,
+            title: t('features.growth.title'),
+            description: t('features.growth.description'),
+        },
+        {
+            icon: Globe,
+            title: t('features.multiplatform.title'),
+            description: t('features.multiplatform.description'),
+        },
+    ];
+
     return (
         <section id="features" className="py-24 relative" style={{ background: 'var(--color-bg-secondary)' }}>
             <div className="container mx-auto px-6">
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                        Everything you need to <span className="gradient-text">succeed</span>
+                    <h2 className="text-5xl md:text-6xl font-black mb-6">
+                        {t('features.title1')} <span className="gradient-text">{t('features.title2')}</span>
                     </h2>
-                    <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--color-text-secondary)' }}>
-                        Powerful features designed for modern service-based startups. Scale your business with confidence.
+                    <p className="text-xl max-w-3xl mx-auto leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                        {t('features.subtitle')}
                     </p>
                 </div>
 
@@ -52,19 +55,19 @@ export default function Features() {
                     {features.map((feature, index) => (
                         <div
                             key={feature.title}
-                            className="card group cursor-pointer"
+                            className="card group cursor-pointer p-8 rounded-3xl"
                             style={{ animationDelay: `${index * 0.1}s` }}
                         >
                             <div
-                                className="w-14 h-14 rounded-xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110"
+                                className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 shadow-lg"
                                 style={{ background: 'linear-gradient(135deg, var(--color-brand-gradient-from), var(--color-brand-gradient-to))' }}
                             >
-                                <feature.icon size={24} color="white" />
+                                <feature.icon size={28} color="white" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3" style={{ color: 'var(--color-text-primary)' }}>
+                            <h3 className="text-2xl font-black mb-4" style={{ color: 'var(--color-text-primary)' }}>
                                 {feature.title}
                             </h3>
-                            <p style={{ color: 'var(--color-text-secondary)' }}>
+                            <p className="text-lg leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
                                 {feature.description}
                             </p>
                         </div>

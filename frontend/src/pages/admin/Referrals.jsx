@@ -73,73 +73,73 @@ export default function Referrals() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
+        <div className="space-y-10 animate-fadeInUp">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Referrals</h1>
-                    <p className="mt-1" style={{ color: 'var(--color-text-secondary)' }}>Manage your referral partners</p>
+                    <h1 className="text-4xl md:text-5xl font-black mb-2 leading-tight" style={{ color: 'var(--color-text-primary)' }}>Referrals</h1>
+                    <p className="text-lg md:text-xl" style={{ color: 'var(--color-text-secondary)' }}>Manage your referral partners and track performance.</p>
                 </div>
-                <button onClick={openCreate} className="btn-primary">
-                    <Plus size={18} /> Add Referrer
+                <button onClick={openCreate} className="btn-primary py-4 px-8 text-lg md:text-xl rounded-2xl shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    <Plus size={22} /> Add New Referrer
                 </button>
             </div>
 
             {/* Search */}
-            <form onSubmit={handleSearch} className="flex gap-3">
+            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
-                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-text-muted)' }} />
+                    <Search size={22} className="absolute left-5 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-text-muted)' }} />
                     <input
                         type="text"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl outline-none"
-                        style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                        className="w-full pl-14 pr-6 py-5 rounded-2xl outline-none text-lg shadow-sm"
+                        style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
                         placeholder="Search by name, email, or referral code..."
                     />
                 </div>
-                <button type="submit" className="btn-secondary">Search</button>
+                <button type="submit" className="btn-secondary py-5 px-10 text-lg rounded-2xl">Search</button>
             </form>
 
             {/* Table */}
-            <div className="card overflow-hidden" style={{ padding: 0 }}>
+            <div className="card shadow-2xl overflow-hidden rounded-[2rem]" style={{ padding: 0, border: '1px solid var(--color-border)' }}>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full">
                         <thead>
-                            <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                            <tr style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)' }}>
                                 {['Name', 'Email', 'Referral Code', 'Referrals', 'Earnings', 'Status', 'Actions'].map(h => (
-                                    <th key={h} className="text-left px-6 py-4 font-semibold" style={{ color: 'var(--color-text-muted)' }}>{h}</th>
+                                    <th key={h} className="text-left px-8 py-6 text-sm font-black uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>{h}</th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y" style={{ borderColor: 'var(--color-border)' }}>
                             {loading ? (
-                                <tr><td colSpan={7} className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-4 border-t-transparent mx-auto" style={{ borderColor: 'var(--color-brand)', borderTopColor: 'transparent' }}></div></td></tr>
+                                <tr><td colSpan={7} className="text-center py-24"><div className="animate-spin rounded-full h-12 w-12 border-4 border-t-transparent mx-auto" style={{ borderColor: 'var(--color-brand)', borderTopColor: 'transparent' }}></div></td></tr>
                             ) : referrers.length === 0 ? (
-                                <tr><td colSpan={7} className="text-center py-12" style={{ color: 'var(--color-text-muted)' }}>No referrers found</td></tr>
+                                <tr><td colSpan={7} className="text-center py-24 text-lg" style={{ color: 'var(--color-text-muted)' }}>No referrers found</td></tr>
                             ) : referrers.map((ref) => (
-                                <tr key={ref.id} className="transition-colors duration-200" style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                    <td className="px-6 py-4 font-medium" style={{ color: 'var(--color-text-primary)' }}>{ref.full_name}</td>
-                                    <td className="px-6 py-4" style={{ color: 'var(--color-text-secondary)' }}>{ref.email}</td>
-                                    <td className="px-6 py-4">
-                                        <button onClick={() => copyCode(ref.referral_code)} className="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-mono font-semibold transition-all" style={{ background: 'var(--color-brand-light)', color: 'var(--color-brand)' }}>
+                                <tr key={ref.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors duration-200">
+                                    <td className="px-8 py-6 font-bold text-lg" style={{ color: 'var(--color-text-primary)' }}>{ref.full_name}</td>
+                                    <td className="px-8 py-6 text-base" style={{ color: 'var(--color-text-secondary)' }}>{ref.email}</td>
+                                    <td className="px-8 py-6">
+                                        <button onClick={() => copyCode(ref.referral_code)} className="flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-mono font-black transition-all hover:scale-105 active:scale-95 shadow-sm" style={{ background: 'var(--color-brand-light)', color: 'var(--color-brand)' }}>
                                             {ref.referral_code}
-                                            {copiedCode === ref.referral_code ? <CheckCircle size={14} /> : <Copy size={14} />}
+                                            {copiedCode === ref.referral_code ? <CheckCircle size={16} /> : <Copy size={16} />}
                                         </button>
                                     </td>
-                                    <td className="px-6 py-4" style={{ color: 'var(--color-text-primary)' }}>{ref.total_referrals}</td>
-                                    <td className="px-6 py-4 font-semibold" style={{ color: 'var(--color-success)' }}>${ref.total_earnings}</td>
-                                    <td className="px-6 py-4">
-                                        <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{
+                                    <td className="px-8 py-6 font-bold text-lg" style={{ color: 'var(--color-text-primary)' }}>{ref.total_referrals}</td>
+                                    <td className="px-8 py-6 font-black text-xl" style={{ color: 'var(--color-success)' }}>${ref.total_earnings}</td>
+                                    <td className="px-8 py-6">
+                                        <span className="px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest" style={{
                                             background: ref.is_active ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                                             color: ref.is_active ? 'var(--color-success)' : 'var(--color-error)',
                                         }}>
                                             {ref.is_active ? 'Active' : 'Inactive'}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2">
-                                            <button onClick={() => openEdit(ref)} className="p-2 rounded-lg transition-all hover:scale-110" style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-info)' }}><Edit2 size={16} /></button>
-                                            <button onClick={() => handleDelete(ref.id)} className="p-2 rounded-lg transition-all hover:scale-110" style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-error)' }}><Trash2 size={16} /></button>
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-3">
+                                            <button onClick={() => openEdit(ref)} className="p-3 rounded-xl transition-all hover:scale-110 shadow-sm" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-info)' }}><Edit2 size={18} /></button>
+                                            <button onClick={() => handleDelete(ref.id)} className="p-3 rounded-xl transition-all hover:scale-110 shadow-sm" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-error)' }}><Trash2 size={18} /></button>
                                         </div>
                                     </td>
                                 </tr>

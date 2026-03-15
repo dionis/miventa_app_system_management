@@ -50,15 +50,15 @@ export default function Dashboard() {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-12">
             {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Dashboard</h1>
-                <p className="mt-1" style={{ color: 'var(--color-text-secondary)' }}>Welcome back! Here's your business overview.</p>
+            <div className="animate-fadeInUp">
+                <h1 className="text-4xl md:text-5xl font-black mb-2 leading-tight" style={{ color: 'var(--color-text-primary)' }}>Dashboard</h1>
+                <p className="text-lg md:text-xl" style={{ color: 'var(--color-text-secondary)' }}>Welcome back! Here's your business overview.</p>
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 <StatsCard title="Total Sales" value={`$${stats.totalSales.toLocaleString()}`} icon={DollarSign} color="#6366f1" trend={12} />
                 <StatsCard title="Active Subscriptions" value={stats.activeSubscriptions} icon={CreditCard} color="#10b981" trend={8} />
                 <StatsCard title="Total Users" value={stats.totalUsers} icon={Users} color="#3b82f6" trend={15} />
@@ -66,11 +66,11 @@ export default function Dashboard() {
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Revenue Chart */}
-                <div className="card" style={{ padding: '1.5rem' }}>
-                    <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>Revenue Overview</h3>
-                    <ResponsiveContainer width="100%" height={300}>
+                <div className="card shadow-xl" style={{ padding: '2.5rem' }}>
+                    <h3 className="text-xl font-bold mb-8" style={{ color: 'var(--color-text-primary)' }}>Revenue Overview</h3>
+                    <ResponsiveContainer width="100%" height={350}>
                         <AreaChart data={stats.monthlySales}>
                             <defs>
                                 <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
@@ -78,65 +78,76 @@ export default function Dashboard() {
                                     <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                            <XAxis dataKey="month" stroke="var(--color-text-muted)" fontSize={12} />
-                            <YAxis stroke="var(--color-text-muted)" fontSize={12} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                            <XAxis dataKey="month" stroke="var(--color-text-muted)" fontSize={14} tickMargin={10} axisLine={false} tickLine={false} />
+                            <YAxis stroke="var(--color-text-muted)" fontSize={14} axisLine={false} tickLine={false} tickFormatter={(value) => `$${value}`} />
                             <Tooltip
                                 contentStyle={{
                                     background: 'var(--color-bg-card)',
                                     border: '1px solid var(--color-border)',
-                                    borderRadius: '12px',
+                                    borderRadius: '16px',
                                     color: 'var(--color-text-primary)',
+                                    boxShadow: 'var(--shadow-xl)',
+                                    padding: '1rem',
                                 }}
                             />
-                            <Area type="monotone" dataKey="sales" stroke="#6366f1" fill="url(#colorSales)" strokeWidth={2} />
+                            <Area type="monotone" dataKey="sales" stroke="#6366f1" fill="url(#colorSales)" strokeWidth={3} dot={{ r: 4, fill: '#6366f1' }} activeDot={{ r: 6, strokeWidth: 0 }} />
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>
 
                 {/* Transactions Chart */}
-                <div className="card" style={{ padding: '1.5rem' }}>
-                    <h3 className="text-lg font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>Transactions</h3>
-                    <ResponsiveContainer width="100%" height={300}>
+                <div className="card shadow-xl" style={{ padding: '2.5rem' }}>
+                    <h3 className="text-xl font-bold mb-8" style={{ color: 'var(--color-text-primary)' }}>Transactions</h3>
+                    <ResponsiveContainer width="100%" height={350}>
                         <BarChart data={stats.monthlySales}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                            <XAxis dataKey="month" stroke="var(--color-text-muted)" fontSize={12} />
-                            <YAxis stroke="var(--color-text-muted)" fontSize={12} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                            <XAxis dataKey="month" stroke="var(--color-text-muted)" fontSize={14} tickMargin={10} axisLine={false} tickLine={false} />
+                            <YAxis stroke="var(--color-text-muted)" fontSize={14} axisLine={false} tickLine={false} />
                             <Tooltip
+                                cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }}
                                 contentStyle={{
                                     background: 'var(--color-bg-card)',
                                     border: '1px solid var(--color-border)',
-                                    borderRadius: '12px',
+                                    borderRadius: '16px',
                                     color: 'var(--color-text-primary)',
+                                    boxShadow: 'var(--shadow-xl)',
+                                    padding: '1rem',
                                 }}
                             />
-                            <Bar dataKey="transactions" fill="#6366f1" radius={[6, 6, 0, 0]} />
+                            <Bar dataKey="transactions" fill="#6366f1" radius={[8, 8, 0, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
             </div>
 
             {/* Quick stats row */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div className="card flex items-center gap-4" style={{ padding: '1.25rem' }}>
-                    <Clock size={20} style={{ color: 'var(--color-warning)' }} />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                <div className="card flex items-center gap-6 shadow-lg" style={{ padding: '2rem' }}>
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(245, 158, 11, 0.1)', color: 'var(--color-warning)' }}>
+                        <Clock size={28} />
+                    </div>
                     <div>
-                        <p className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{stats.pendingPayments}</p>
-                        <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Pending Payments</p>
+                        <p className="text-3xl font-black" style={{ color: 'var(--color-text-primary)' }}>{stats.pendingPayments}</p>
+                        <p className="text-base font-bold" style={{ color: 'var(--color-text-muted)' }}>Pending Payments</p>
                     </div>
                 </div>
-                <div className="card flex items-center gap-4" style={{ padding: '1.25rem' }}>
-                    <Mail size={20} style={{ color: 'var(--color-info)' }} />
+                <div className="card flex items-center gap-6 shadow-lg" style={{ padding: '2rem' }}>
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--color-info)' }}>
+                        <Mail size={28} />
+                    </div>
                     <div>
-                        <p className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{stats.unreadLeads}</p>
-                        <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Unread Leads</p>
+                        <p className="text-3xl font-black" style={{ color: 'var(--color-text-primary)' }}>{stats.unreadLeads}</p>
+                        <p className="text-base font-bold" style={{ color: 'var(--color-text-muted)' }}>Unread Leads</p>
                     </div>
                 </div>
-                <div className="card flex items-center gap-4" style={{ padding: '1.25rem' }}>
-                    <TrendingUp size={20} style={{ color: 'var(--color-success)' }} />
+                <div className="card flex items-center gap-6 shadow-lg" style={{ padding: '2rem' }}>
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)' }}>
+                        <TrendingUp size={28} />
+                    </div>
                     <div>
-                        <p className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{stats.totalReferrals}</p>
-                        <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Total Referrals</p>
+                        <p className="text-3xl font-black" style={{ color: 'var(--color-text-primary)' }}>{stats.totalReferrals}</p>
+                        <p className="text-base font-bold" style={{ color: 'var(--color-text-muted)' }}>Total Referrals</p>
                     </div>
                 </div>
             </div>

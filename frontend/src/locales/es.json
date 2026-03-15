@@ -1,0 +1,149 @@
+{
+    "nav": {
+        "features": "Funciones",
+        "pricing": "Precios",
+        "contact": "Contacto",
+        "signIn": "Iniciar Sesión"
+    },
+    "hero": {
+        "badge": "El Futuro de la Gestión de Negocios",
+        "title1": "Gestiona tu negocio",
+        "title2": "con superpoderes",
+        "subtitle": "La plataforma todo en uno que empodera a startups y negocios de servicios para escalar más rápido con analíticas potentes, suscripciones inteligentes y gestión de referidos.",
+        "getStarted": "Empezar",
+        "learnMore": "Saber Más",
+        "stats": {
+            "users": "Usuarios Activos",
+            "uptime": "Disponibilidad",
+            "support": "Soporte"
+        }
+    },
+    "pricing": {
+        "title": "Precios simples y",
+        "accent": "transparentes",
+        "subtitle": "Elige el plan que se adapte a tus necesidades. Todos los planes incluyen nuestras funciones principales.",
+        "popular": "Más Popular",
+        "month": "mes",
+        "months": "meses",
+        "mo": "mes",
+        "custom": "Personalizado",
+        "customPricing": "Precios personalizados",
+        "contactSales": "Contactar Ventas",
+        "getStarted": "Empezar",
+        "plans": {
+            "monthly": {
+                "name": "Mensual",
+                "features": [
+                    "Todas las funciones básicas",
+                    "Soporte por email",
+                    "1 usuario"
+                ]
+            },
+            "quarterly": {
+                "name": "Trimestral",
+                "features": [
+                    "Todas las funciones básicas",
+                    "Soporte prioritario",
+                    "3 usuarios",
+                    "Dashboard analítico"
+                ]
+            },
+            "semiannual": {
+                "name": "Semestral",
+                "features": [
+                    "Todas las funciones básicas",
+                    "Soporte prioritario",
+                    "5 usuarios",
+                    "Dashboard analítico",
+                    "Acceso API"
+                ]
+            },
+            "annual": {
+                "name": "Anual",
+                "features": [
+                    "Todas las funciones básicas",
+                    "Soporte dedicado",
+                    "10 usuarios",
+                    "Dashboard analítico",
+                    "Acceso API",
+                    "Integraciones personalizadas"
+                ]
+            },
+            "enterprise": {
+                "name": "Empresarial",
+                "features": [
+                    "Usuarios ilimitados",
+                    "Soporte dedicado 24/7",
+                    "Integraciones personalizadas",
+                    "Garantía SLA",
+                    "Opción on-premise"
+                ]
+            }
+        }
+    },
+    "contact": {
+        "title": "Ponte en",
+        "accent": "contacto",
+        "subtitle": "¿Tienes preguntas? Nos encantaría escucharte. ¡Envíanos un mensaje!",
+        "fullName": "Nombre Completo",
+        "email": "Correo Electrónico",
+        "phone": "Teléfono",
+        "company": "Empresa",
+        "message": "Mensaje",
+        "placeholderName": "Juan Pérez",
+        "placeholderEmail": "juan@example.com",
+        "placeholderPhone": "+1 (555) 000-0000",
+        "placeholderCompany": "Acme Inc.",
+        "placeholderMessage": "Cuéntanos sobre tu proyecto...",
+        "success": "¡Mensaje enviado con éxito! Nos pondremos en contacto pronto.",
+        "error": "Algo salió mal. Por favor, inténtalo de nuevo.",
+        "submit": "Enviar Mensaje"
+    },
+    "sidebar": {
+        "dashboard": "Panel de Control",
+        "referrals": "Referidos",
+        "users": "Usuarios",
+        "faqs": "Gestor de FAQ",
+        "logs": "Registro de Eventos",
+        "signOut": "Cerrar Sesión",
+        "admin": "Admin"
+    },
+    "features": {
+        "title1": "Todo lo que necesitas para",
+        "title2": "triunfar",
+        "subtitle": "Funciones potentes diseñadas para startups modernas de servicios. Escala tu negocio con confianza.",
+        "analytics": {
+            "title": "Analíticas en Tiempo Real",
+            "description": "Rastrea ventas, suscripciones y rendimiento de referidos con dashboards visuales hermosos actualizados en tiempo real."
+        },
+        "security": {
+            "title": "Seguridad Empresarial",
+            "description": "Control de acceso basado en roles, autenticación JWT y registro de auditoría para mantener tus datos seguros."
+        },
+        "referral": {
+            "title": "Sistema de Referidos",
+            "description": "Gestión de referidos integrada con códigos únicos, seguimiento y cálculos de pago automatizados."
+        },
+        "payments": {
+            "title": "Pagos Inteligentes",
+            "description": "Generación dinámica de códigos QR, múltiples planes de suscripción e integración fluida del flujo de pagos."
+        },
+        "growth": {
+            "title": "Perspectivas de Crecimiento",
+            "description": "Entiende tu trayectoria de crecimiento con analíticas mensuales, seguimiento de conversión y monitoreo de KPI."
+        },
+        "multiplatform": {
+            "title": "Multi-Plataforma",
+            "description": "Diseño responsivo que funciona perfectamente en escritorio, tablet y móvil con soporte de modo oscuro."
+        }
+    },
+    "footer": {
+        "description": "La plataforma SaaS todo-en-uno para startups de servicios. Gestiona suscripciones, referidos y analíticas desde un solo dashboard.",
+        "product": "Producto",
+        "company": "Compañía",
+        "contact": "Contacto",
+        "rights": "Todos los derechos reservados.",
+        "madeWith": "Hecho con",
+        "forStartups": "para startups en todas partes"
+    }
+}

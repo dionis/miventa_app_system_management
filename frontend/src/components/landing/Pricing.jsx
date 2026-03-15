@@ -1,29 +1,32 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Check, ArrowRight, Crown, MessageCircle } from 'lucide-react';
 import api from '../../lib/axios';
 
 const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '1234567890';
 
 export default function Pricing({ onSelectPlan }) {
+    const { t, i18n } = useTranslation();
     const [plans, setPlans] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchPlans();
-    }, []);
+    }, [i18n.language]);
 
     const fetchPlans = async () => {
         try {
             const { data } = await api.get('/dashboard/plans');
             setPlans(data);
         } catch {
-            // Fallback plans if API is not available
+            // Use specific keys to allow dynamic translation later if needed, 
+            // but for now re-setting with t() on language change works.
             setPlans([
-                { id: '1', name: 'Monthly', duration_months: 1, price: 29.99, is_enterprise: false, features: ['All core features', 'Email support', '1 user seat'] },
-                { id: '2', name: 'Quarterly', duration_months: 3, price: 76.47, is_enterprise: false, features: ['All core features', 'Priority support', '3 user seats', 'Analytics dashboard'] },
-                { id: '3', name: 'Semiannual', duration_months: 6, price: 134.96, is_enterprise: false, features: ['All core features', 'Priority support', '5 user seats', 'Analytics dashboard', 'API access'] },
-                { id: '4', name: 'Annual', duration_months: 12, price: 233.88, is_enterprise: false, features: ['All core features', 'Dedicated support', '10 user seats', 'Analytics dashboard', 'API access', 'Custom integrations'] },
-                { id: '5', name: 'Enterprise', duration_months: 0, price: 0, is_enterprise: true, features: ['Unlimited users', '24/7 dedicated support', 'Custom integrations', 'SLA guarantee', 'On-premise option'] },
+                { id: '1', key: 'monthly', duration_months: 1, price: 29.99, is_enterprise: false },
+                { id: '2', key: 'quarterly', duration_months: 3, price: 76.47, is_enterprise: false },
+                { id: '3', key: 'semiannual', duration_months: 6, price: 134.96, is_enterprise: false },
+                { id: '4', key: 'annual', duration_months: 12, price: 233.88, is_enterprise: false },
+                { id: '5', key: 'enterprise', duration_months: 0, price: 0, is_enterprise: true },
             ]);
         } finally {
             setLoading(false);
@@ -51,104 +54,106 @@ export default function Pricing({ onSelectPlan }) {
         <section id="pricing" className="py-24" style={{ background: 'var(--color-bg-primary)' }}>
             <div className="container mx-auto px-6">
                 {/* Header */}
-                <div className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                        Simple, transparent <span className="gradient-text">pricing</span>
+                <div className="text-center mb-20">
+                    <h2 className="text-5xl md:text-7xl font-black mb-6">
+                        {t('pricing.title')} <span className="gradient-text">{t('pricing.accent')}</span>
                     </h2>
-                    <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--color-text-secondary)' }}>
-                        Choose the plan that fits your needs. All plans include our core features.
+                    <p className="text-xl max-w-3xl mx-auto leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                        {t('pricing.subtitle')}
                     </p>
                 </div>
 
-                {/* Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
+                {/* Centered Flex Layout */}
+                <div className="flex flex-wrap justify-center gap-10 max-w-[95rem] mx-auto">
                     {plans.map((plan) => {
                         const popular = isPopular(plan);
                         const monthlyPrice = getMonthlyPrice(plan);
-                        const planFeatures = typeof plan.features === 'string' ? JSON.parse(plan.features) : plan.features;
+
+                        // Handle dynamic name and features from i18n keys
+                        const planName = plan.key ? t(`pricing.plans.${plan.key}.name`) : plan.name;
+                        const planFeatures = plan.key
+                            ? t(`pricing.plans.${plan.key}.features`, { returnObjects: true })
+                            : (Array.isArray(plan.features) ? plan.features : []);
 
                         return (
                             <div
                                 key={plan.id}
-                                className="relative rounded-2xl p-6 flex flex-col transition-all duration-300 hover:-translate-y-2"
+                                className="relative rounded-3xl p-8 flex flex-col transition-all duration-300 hover:-translate-y-3 w-full sm:w-[calc(50%-1.25rem)] lg:w-[calc(33.33%-1.75rem)] xl:w-[calc(20%-2rem)] min-w-[280px] max-w-sm"
                                 style={{
                                     background: plan.is_enterprise
                                         ? 'linear-gradient(135deg, var(--color-brand-gradient-from), var(--color-brand-gradient-to))'
                                         : 'var(--color-bg-card)',
-                                    border: popular ? '2px solid var(--color-brand)' : '1px solid var(--color-border)',
-                                    boxShadow: popular ? '0 0 30px rgba(99, 102, 241, 0.2)' : 'var(--shadow-sm)',
+                                    border: popular ? '4px solid var(--color-brand)' : '1px solid var(--color-border)',
+                                    boxShadow: popular ? '0 25px 50px rgba(249, 115, 22, 0.25)' : 'var(--shadow-lg)',
                                     color: plan.is_enterprise ? 'white' : 'var(--color-text-primary)',
                                 }}
                             >
-                                {/* Popular badge */}
                                 {popular && (
-                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-sm font-semibold text-white flex items-center gap-1" style={{ background: 'linear-gradient(135deg, var(--color-brand-gradient-from), var(--color-brand-gradient-to))' }}>
-                                        <Crown size={14} /> Most Popular
+                                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest text-white flex items-center gap-2 shadow-xl z-10 whitespace-nowrap" style={{ background: 'linear-gradient(135deg, var(--color-brand-gradient-from), var(--color-brand-gradient-to))' }}>
+                                        <Crown size={16} /> {t('pricing.popular')}
                                     </div>
                                 )}
 
-                                {/* Plan name */}
-                                <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+                                <h3 className="text-2xl md:text-3xl font-black mb-3 break-words leading-tight">{planName}</h3>
 
-                                {/* Duration */}
                                 {!plan.is_enterprise && (
-                                    <p className="text-sm mb-4" style={{ color: plan.is_enterprise ? 'rgba(255,255,255,0.8)' : 'var(--color-text-muted)' }}>
-                                        {plan.duration_months} {plan.duration_months === 1 ? 'month' : 'months'}
+                                    <p className="text-base font-bold mb-8 opacity-80" style={{ color: plan.is_enterprise ? 'rgba(255,255,255,0.8)' : 'var(--color-text-muted)' }}>
+                                        {plan.duration_months} {plan.duration_months === 1 ? t('pricing.month') : t('pricing.months')}
                                     </p>
                                 )}
                                 {plan.is_enterprise && (
-                                    <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.8)' }}>Custom pricing</p>
+                                    <p className="text-base font-bold mb-8 opacity-80" style={{ color: 'rgba(255,255,255,0.8)' }}>{t('pricing.customPricing')}</p>
                                 )}
 
-                                {/* Price */}
                                 {!plan.is_enterprise ? (
-                                    <div className="mb-6">
-                                        <span className="text-4xl font-bold">${plan.price}</span>
+                                    <div className="mb-10">
+                                        <div className="flex items-baseline gap-1 flex-wrap">
+                                            <span className="text-xl font-bold">$</span>
+                                            <span className="text-5xl md:text-6xl font-black">{plan.price}</span>
+                                        </div>
                                         {monthlyPrice && (
-                                            <span className="text-sm ml-2" style={{ color: plan.is_enterprise ? 'rgba(255,255,255,0.7)' : 'var(--color-text-muted)' }}>
-                                                (${monthlyPrice}/mo)
-                                            </span>
+                                            <div className="text-base font-bold mt-2 opacity-60" style={{ color: plan.is_enterprise ? 'rgba(255,255,255,0.7)' : 'var(--color-text-muted)' }}>
+                                                (${monthlyPrice}/{t('pricing.mo')})
+                                            </div>
                                         )}
                                     </div>
                                 ) : (
-                                    <div className="mb-6">
-                                        <span className="text-4xl font-bold">Custom</span>
+                                    <div className="mb-10">
+                                        <span className="text-4xl md:text-6xl font-black break-words">{t('pricing.custom')}</span>
                                     </div>
                                 )}
 
-                                {/* Features */}
-                                <ul className="flex-1 space-y-3 mb-8">
-                                    {(planFeatures || []).map((feature) => (
-                                        <li key={feature} className="flex items-start gap-2 text-sm">
-                                            <Check size={16} className="mt-0.5 shrink-0" style={{ color: plan.is_enterprise ? 'white' : 'var(--color-success)' }} />
-                                            <span>{feature}</span>
+                                <ul className="flex-1 space-y-5 mb-12">
+                                    {(Array.isArray(planFeatures) ? planFeatures : []).map((feature, idx) => (
+                                        <li key={idx} className="flex items-start gap-4 text-base">
+                                            <Check size={20} className="mt-1 shrink-0" style={{ color: plan.is_enterprise ? 'white' : 'var(--color-success)' }} />
+                                            <span className="font-bold leading-snug break-words hyphens-auto">{feature}</span>
                                         </li>
                                     ))}
                                 </ul>
 
-                                {/* CTA */}
                                 {plan.is_enterprise ? (
                                     <a
                                         href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hi! I'm interested in the Enterprise plan.`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="w-full py-3 px-4 rounded-xl font-semibold text-center transition-all duration-300 hover:opacity-90 flex items-center justify-center gap-2"
+                                        className="w-full py-5 px-4 rounded-2xl font-black text-lg md:text-xl text-center transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-2xl flex items-center justify-center gap-2"
                                         style={{ background: 'white', color: 'var(--color-brand)' }}
                                     >
-                                        <MessageCircle size={18} />
-                                        Contact Sales
+                                        <MessageCircle size={22} className="shrink-0" />
+                                        <span className="break-words">{t('pricing.contactSales')}</span>
                                     </a>
                                 ) : (
                                     <button
                                         onClick={() => onSelectPlan?.(plan)}
-                                        className="w-full py-3 px-4 rounded-xl font-semibold transition-all duration-300 hover:opacity-90 flex items-center justify-center gap-2"
+                                        className="w-full py-5 px-4 rounded-2xl font-black text-lg md:text-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-2xl flex items-center justify-center gap-2"
                                         style={{
                                             background: popular ? 'linear-gradient(135deg, var(--color-brand-gradient-from), var(--color-brand-gradient-to))' : 'var(--color-bg-tertiary)',
                                             color: popular ? 'white' : 'var(--color-text-primary)',
                                         }}
                                     >
-                                        Get Started
-                                        <ArrowRight size={16} />
+                                        <span className="break-words">{t('pricing.getStarted')}</span>
+                                        <ArrowRight size={22} className="shrink-0" />
                                     </button>
                                 )}
                             </div>

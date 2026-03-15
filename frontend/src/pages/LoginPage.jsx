@@ -63,7 +63,7 @@ export default function LoginPage() {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500"
+                                className="w-full px-4 py-3 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-orange-500"
                                 style={{
                                     background: 'var(--color-bg-tertiary)',
                                     border: '1px solid var(--color-border)',
@@ -81,7 +81,7 @@ export default function LoginPage() {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-3 pr-12 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full px-4 py-3 pr-12 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-orange-500"
                                     style={{
                                         background: 'var(--color-bg-tertiary)',
                                         border: '1px solid var(--color-border)',
@@ -92,7 +92,7 @@ export default function LoginPage() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 rounded-full"
                                     style={{ color: 'var(--color-text-muted)' }}
                                 >
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

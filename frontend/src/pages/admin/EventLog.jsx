@@ -35,22 +35,24 @@ export default function EventLog() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-10 animate-fadeInUp">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Event Log</h1>
-                    <p className="mt-1" style={{ color: 'var(--color-text-secondary)' }}>Read-only audit trail of system actions</p>
+                    <h1 className="text-4xl md:text-5xl font-black mb-2 leading-tight" style={{ color: 'var(--color-text-primary)' }}>Event Log</h1>
+                    <p className="text-lg md:text-xl" style={{ color: 'var(--color-text-secondary)' }}>Read-only audit trail of system actions.</p>
                 </div>
             </div>
 
             {/* Filter */}
-            <div className="flex items-center gap-3">
-                <Filter size={18} style={{ color: 'var(--color-text-muted)' }} />
+            <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl shadow-sm" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                    <Filter size={20} style={{ color: 'var(--color-brand)' }} />
+                </div>
                 <select
                     value={filter}
                     onChange={(e) => { setFilter(e.target.value); setPage(1); }}
-                    className="px-4 py-2 rounded-xl outline-none text-sm"
-                    style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                    className="px-6 py-3 rounded-2xl outline-none text-base font-bold shadow-sm cursor-pointer"
+                    style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
                 >
                     <option value="">All Events</option>
                     <option value="payment">Payments</option>
@@ -61,42 +63,42 @@ export default function EventLog() {
             </div>
 
             {/* Log entries */}
-            <div className="card overflow-hidden" style={{ padding: 0 }}>
+            <div className="card shadow-2xl overflow-hidden rounded-[2rem]" style={{ padding: 0, border: '1px solid var(--color-border)' }}>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full">
                         <thead>
-                            <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                            <tr style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)' }}>
                                 {['Timestamp', 'Action', 'Entity', 'Details', 'Actor'].map(h => (
-                                    <th key={h} className="text-left px-6 py-4 font-semibold" style={{ color: 'var(--color-text-muted)' }}>{h}</th>
+                                    <th key={h} className="text-left px-8 py-6 text-sm font-black uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>{h}</th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y" style={{ borderColor: 'var(--color-border)' }}>
                             {loading ? (
-                                <tr><td colSpan={5} className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-4 border-t-transparent mx-auto" style={{ borderColor: 'var(--color-brand)', borderTopColor: 'transparent' }}></div></td></tr>
+                                <tr><td colSpan={5} className="text-center py-24"><div className="animate-spin rounded-full h-12 w-12 border-4 border-t-transparent mx-auto" style={{ borderColor: 'var(--color-brand)', borderTopColor: 'transparent' }}></div></td></tr>
                             ) : logs.length === 0 ? (
-                                <tr><td colSpan={5} className="text-center py-12" style={{ color: 'var(--color-text-muted)' }}>No events found</td></tr>
+                                <tr><td colSpan={5} className="text-center py-24 text-lg" style={{ color: 'var(--color-text-muted)' }}>No events found</td></tr>
                             ) : logs.map((log) => (
-                                <tr key={log.id} className="transition-colors duration-200" style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                    <td className="px-6 py-4 whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>
+                                <tr key={log.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors duration-200">
+                                    <td className="px-8 py-6 whitespace-nowrap text-base" style={{ color: 'var(--color-text-muted)' }}>
                                         {new Date(log.created_at).toLocaleString()}
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{
+                                    <td className="px-8 py-6">
+                                        <span className="px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest" style={{
                                             background: `${ACTION_COLORS[log.action] || '#6b7280'}15`,
                                             color: ACTION_COLORS[log.action] || '#6b7280',
                                         }}>
                                             {log.action.replace(/_/g, ' ')}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <span className="capitalize font-medium" style={{ color: 'var(--color-text-primary)' }}>{log.entity_type}</span>
-                                        <span className="text-xs ml-2 font-mono" style={{ color: 'var(--color-text-muted)' }}>{log.entity_id?.slice(0, 8)}...</span>
+                                    <td className="px-8 py-6">
+                                        <span className="capitalize font-bold text-lg" style={{ color: 'var(--color-text-primary)' }}>{log.entity_type}</span>
+                                        <span className="text-xs ml-3 font-mono opacity-50" style={{ color: 'var(--color-text-muted)' }}>{log.entity_id?.slice(0, 8)}</span>
                                     </td>
-                                    <td className="px-6 py-4 max-w-xs truncate" style={{ color: 'var(--color-text-secondary)' }}>
+                                    <td className="px-8 py-6 max-w-xs truncate text-base" style={{ color: 'var(--color-text-secondary)' }}>
                                         {log.details ? JSON.stringify(log.details).slice(0, 80) : '—'}
                                     </td>
-                                    <td className="px-6 py-4" style={{ color: 'var(--color-text-secondary)' }}>
+                                    <td className="px-8 py-6 text-base font-medium" style={{ color: 'var(--color-text-primary)' }}>
                                         {log.actor_email || log.actor_id?.slice(0, 8) || 'System'}
                                     </td>
                                 </tr>

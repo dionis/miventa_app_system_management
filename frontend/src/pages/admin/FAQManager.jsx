@@ -69,44 +69,44 @@ export default function FAQManager() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
+        <div className="space-y-10 animate-fadeInUp">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>FAQ Manager</h1>
-                    <p className="mt-1" style={{ color: 'var(--color-text-secondary)' }}>Manage frequently asked questions for the public site</p>
+                    <h1 className="text-4xl md:text-5xl font-black mb-2 leading-tight" style={{ color: 'var(--color-text-primary)' }}>FAQ Manager</h1>
+                    <p className="text-lg md:text-xl" style={{ color: 'var(--color-text-secondary)' }}>Manage frequently asked questions for the public site.</p>
                 </div>
-                <button onClick={openCreate} className="btn-primary">
-                    <Plus size={18} /> Add FAQ
+                <button onClick={openCreate} className="btn-primary py-4 px-8 text-lg md:text-xl rounded-2xl shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    <Plus size={22} /> Add New FAQ
                 </button>
             </div>
 
             {/* FAQ Cards */}
             {loading ? (
-                <div className="flex items-center justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-4 border-t-transparent" style={{ borderColor: 'var(--color-brand)', borderTopColor: 'transparent' }}></div></div>
+                <div className="flex items-center justify-center py-24"><div className="animate-spin rounded-full h-12 w-12 border-4 border-t-transparent" style={{ borderColor: 'var(--color-brand)', borderTopColor: 'transparent' }}></div></div>
             ) : faqs.length === 0 ? (
-                <div className="card text-center py-12" style={{ color: 'var(--color-text-muted)' }}>No FAQs yet. Create your first one!</div>
+                <div className="card text-center py-24 text-lg shadow-xl" style={{ color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>No FAQs yet. Create your first one!</div>
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     {faqs.map((faq) => (
-                        <div key={faq.id} className="card flex items-start gap-4" style={{ padding: '1.25rem' }}>
-                            <GripVertical size={20} className="mt-1 shrink-0 cursor-grab" style={{ color: 'var(--color-text-muted)' }} />
+                        <div key={faq.id} className="card flex items-start gap-6 shadow-lg hover:shadow-xl transition-all duration-300" style={{ padding: '2rem', border: '1px solid var(--color-border)' }}>
+                            <GripVertical size={24} className="mt-1 shrink-0 cursor-grab opacity-30 hover:opacity-100 transition-opacity" style={{ color: 'var(--color-text-muted)' }} />
                             <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div>
-                                        <h3 className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{faq.question}</h3>
-                                        <p className="text-sm mt-2 whitespace-pre-wrap" style={{ color: 'var(--color-text-secondary)' }}>{faq.answer}</p>
+                                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                                    <div className="flex-1">
+                                        <h3 className="text-xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>{faq.question}</h3>
+                                        <p className="text-base leading-relaxed whitespace-pre-wrap" style={{ color: 'var(--color-text-secondary)' }}>{faq.answer}</p>
                                     </div>
-                                    <div className="flex items-center gap-2 shrink-0">
-                                        <button onClick={() => togglePublished(faq)} className="p-2 rounded-lg transition-all hover:scale-110" style={{ background: 'var(--color-bg-tertiary)', color: faq.is_published ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
-                                            {faq.is_published ? <Eye size={16} /> : <EyeOff size={16} />}
+                                    <div className="flex items-center gap-3 shrink-0">
+                                        <button onClick={() => togglePublished(faq)} className="p-3 rounded-xl transition-all hover:scale-110 shadow-sm" style={{ background: 'var(--color-bg-secondary)', color: faq.is_published ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
+                                            {faq.is_published ? <Eye size={20} /> : <EyeOff size={20} />}
                                         </button>
-                                        <button onClick={() => openEdit(faq)} className="p-2 rounded-lg transition-all hover:scale-110" style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-info)' }}><Edit2 size={16} /></button>
-                                        <button onClick={() => handleDelete(faq.id)} className="p-2 rounded-lg transition-all hover:scale-110" style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-error)' }}><Trash2 size={16} /></button>
+                                        <button onClick={() => openEdit(faq)} className="p-3 rounded-xl transition-all hover:scale-110 shadow-sm" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-info)' }}><Edit2 size={20} /></button>
+                                        <button onClick={() => handleDelete(faq.id)} className="p-3 rounded-xl transition-all hover:scale-110 shadow-sm" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-error)' }}><Trash2 size={20} /></button>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3 mt-3">
-                                    <span className="text-xs px-2 py-1 rounded-full" style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-muted)' }}>Order: {faq.sort_order}</span>
-                                    <span className="text-xs px-2 py-1 rounded-full" style={{
+                                <div className="flex items-center gap-4 mt-6">
+                                    <span className="text-xs px-4 py-1.5 rounded-full font-bold uppercase tracking-widest" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-text-muted)' }}>Order: {faq.sort_order}</span>
+                                    <span className="text-xs px-4 py-1.5 rounded-full font-black uppercase tracking-widest" style={{
                                         background: faq.is_published ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                                         color: faq.is_published ? 'var(--color-success)' : 'var(--color-error)',
                                     }}>
@@ -141,7 +141,7 @@ export default function FAQManager() {
                                 </div>
                                 <div className="flex items-end">
                                     <label className="flex items-center gap-3 cursor-pointer py-3">
-                                        <input type="checkbox" checked={form.is_published} onChange={(e) => setForm({ ...form, is_published: e.target.checked })} className="w-5 h-5 rounded accent-indigo-500" />
+                                        <input type="checkbox" checked={form.is_published} onChange={(e) => setForm({ ...form, is_published: e.target.checked })} className="w-5 h-5 rounded accent-orange-500" />
                                         <span className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>Published</span>
                                     </label>
                                 </div>

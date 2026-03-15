@@ -1,0 +1,149 @@
+{
+    "nav": {
+        "features": "Features",
+        "pricing": "Pricing",
+        "contact": "Contact",
+        "signIn": "Sign In"
+    },
+    "hero": {
+        "badge": "The Future of Business Management",
+        "title1": "Manage your business",
+        "title2": "with superpowers",
+        "subtitle": "The all-in-one platform that empowers startups and service-based businesses to scale faster with powerful analytics, smart subscriptions, and referral management.",
+        "getStarted": "Get Started",
+        "learnMore": "Learn More",
+        "stats": {
+            "users": "Active Users",
+            "uptime": "Uptime",
+            "support": "Support"
+        }
+    },
+    "pricing": {
+        "title": "Simple, transparent",
+        "accent": "pricing",
+        "subtitle": "Choose the plan that fits your needs. All plans include our core features.",
+        "popular": "Most Popular",
+        "month": "month",
+        "months": "months",
+        "mo": "mo",
+        "custom": "Custom",
+        "customPricing": "Custom pricing",
+        "contactSales": "Contact Sales",
+        "getStarted": "Get Started",
+        "plans": {
+            "monthly": {
+                "name": "Monthly",
+                "features": [
+                    "All core features",
+                    "Email support",
+                    "1 user seat"
+                ]
+            },
+            "quarterly": {
+                "name": "Quarterly",
+                "features": [
+                    "All core features",
+                    "Priority support",
+                    "3 user seats",
+                    "Analytics dashboard"
+                ]
+            },
+            "semiannual": {
+                "name": "Semiannual",
+                "features": [
+                    "All core features",
+                    "Priority support",
+                    "5 user seats",
+                    "Analytics dashboard",
+                    "API access"
+                ]
+            },
+            "annual": {
+                "name": "Annual",
+                "features": [
+                    "All core features",
+                    "Dedicated support",
+                    "10 user seats",
+                    "Analytics dashboard",
+                    "API access",
+                    "Custom integrations"
+                ]
+            },
+            "enterprise": {
+                "name": "Enterprise",
+                "features": [
+                    "Unlimited users",
+                    "24/7 dedicated support",
+                    "Custom integrations",
+                    "SLA guarantee",
+                    "On-premise option"
+                ]
+            }
+        }
+    },
+    "contact": {
+        "title": "Get in",
+        "accent": "touch",
+        "subtitle": "Have questions? We'd love to hear from you. Send us a message!",
+        "fullName": "Full Name",
+        "email": "Email",
+        "phone": "Phone",
+        "company": "Company",
+        "message": "Message",
+        "placeholderName": "John Doe",
+        "placeholderEmail": "john@example.com",
+        "placeholderPhone": "+1 (555) 000-0000",
+        "placeholderCompany": "Acme Inc.",
+        "placeholderMessage": "Tell us about your project...",
+        "success": "Message sent successfully! We'll be in touch soon.",
+        "error": "Something went wrong. Please try again.",
+        "submit": "Send Message"
+    },
+    "sidebar": {
+        "dashboard": "Dashboard",
+        "referrals": "Referrals",
+        "users": "Users",
+        "faqs": "FAQ Manager",
+        "logs": "Event Log",
+        "signOut": "Sign Out",
+        "admin": "Admin"
+    },
+    "features": {
+        "title1": "Everything you need to",
+        "title2": "succeed",
+        "subtitle": "Powerful features designed for modern service-based startups. Scale your business with confidence.",
+        "analytics": {
+            "title": "Real-time Analytics",
+            "description": "Track sales, subscriptions and referral performance with beautiful visual dashboards updated in real-time."
+        },
+        "security": {
+            "title": "Enterprise Security",
+            "description": "Role-based access control, JWT authentication, and audit logging keep your data safe and traceable."
+        },
+        "referral": {
+            "title": "Referral System",
+            "description": "Built-in referral management with unique codes, tracking, and automated payout calculations."
+        },
+        "payments": {
+            "title": "Smart Payments",
+            "description": "Dynamic QR code generation, multiple subscription plans, and seamless payment flow integration."
+        },
+        "growth": {
+            "title": "Growth Insights",
+            "description": "Understand your growth trajectory with monthly analytics, conversion tracking, and KPI monitoring."
+        },
+        "multiplatform": {
+            "title": "Multi-Platform",
+            "description": "Responsive design works flawlessly on desktop, tablet, and mobile with dark mode support."
+        }
+    },
+    "footer": {
+        "description": "The all-in-one SaaS platform for service-based startups. Manage subscriptions, referrals, and analytics from a single dashboard.",
+        "product": "Product",
+        "company": "Company",
+        "contact": "Contact",
+        "rights": "All rights reserved.",
+        "madeWith": "Made with",
+        "forStartups": "for startups everywhere"
+    }
+}
