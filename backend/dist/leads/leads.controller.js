@@ -14,11 +14,13 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeadsController = void 0;
 const common_1 = require("@nestjs/common");
+const throttler_1 = require("@nestjs/throttler");
 const leads_service_1 = require("./leads.service");
 const create_lead_dto_1 = require("./dto/create-lead.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
+const pagination_helper_1 = require("../common/helpers/pagination.helper");
 let LeadsController = class LeadsController {
     leadsService;
     constructor(leadsService) {
@@ -28,7 +30,8 @@ let LeadsController = class LeadsController {
         return this.leadsService.create(dto);
     }
     findAll(page, limit) {
-        return this.leadsService.findAll(page ? parseInt(page) : 1, limit ? parseInt(limit) : 20);
+        const { page: p, limit: l } = (0, pagination_helper_1.parsePagination)(page, limit);
+        return this.leadsService.findAll(p, l);
     }
     markAsRead(id) {
         return this.leadsService.markAsRead(id);
@@ -37,6 +40,7 @@ let LeadsController = class LeadsController {
 exports.LeadsController = LeadsController;
 __decorate([
     (0, common_1.Post)(),
+    (0, throttler_1.Throttle)({ default: { limit: 5, ttl: 60 * 1000 } }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_lead_dto_1.CreateLeadDto]),

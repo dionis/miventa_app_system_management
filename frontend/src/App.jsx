@@ -1,19 +1,28 @@
+import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Pages
+// Pages (públicas, eager: LCP)
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 
-// Admin Pages
+// Admin Pages (lazy: reduce bundle inicial ~781KB -> split por ruta, clave en mobile)
 import AdminLayout from './components/admin/AdminLayout';
-import Dashboard from './pages/admin/Dashboard';
-import Referrals from './pages/admin/Referrals';
-import Users from './pages/admin/Users';
-import FAQManager from './pages/admin/FAQManager';
-import EventLog from './pages/admin/EventLog';
+const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
+const Referrals = lazy(() => import('./pages/admin/Referrals'));
+const Users = lazy(() => import('./pages/admin/Users'));
+const FAQManager = lazy(() => import('./pages/admin/FAQManager'));
+const EventLog = lazy(() => import('./pages/admin/EventLog'));
+
+function RouteLoader() {
+  return (
+    <div className="flex items-center justify-center py-20" role="status" aria-label="Loading page">
+      <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-transparent" style={{ borderColor: 'var(--color-brand)', borderTopColor: 'transparent' }}></div>
+    </div>
+  );
+}
 
 function App() {
   return (
@@ -35,13 +44,13 @@ function App() {
             }
           >
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="referrals" element={<Referrals />} />
+            <Route path="dashboard" element={<Suspense fallback={<RouteLoader />}><Dashboard /></Suspense>} />
+            <Route path="referrals" element={<Suspense fallback={<RouteLoader />}><Referrals /></Suspense>} />
             <Route
               path="users"
               element={
                 <ProtectedRoute roles={['admin', 'staff']}>
-                  <Users />
+                  <Suspense fallback={<RouteLoader />}><Users /></Suspense>
                 </ProtectedRoute>
               }
             />
@@ -49,7 +58,7 @@ function App() {
               path="faqs"
               element={
                 <ProtectedRoute roles={['admin', 'staff']}>
-                  <FAQManager />
+                  <Suspense fallback={<RouteLoader />}><FAQManager /></Suspense>
                 </ProtectedRoute>
               }
             />
@@ -57,7 +66,7 @@ function App() {
               path="logs"
               element={
                 <ProtectedRoute roles={['admin']}>
-                  <EventLog />
+                  <Suspense fallback={<RouteLoader />}><EventLog /></Suspense>
                 </ProtectedRoute>
               }
             />

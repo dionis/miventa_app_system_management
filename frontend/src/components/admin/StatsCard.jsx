@@ -3,28 +3,34 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line no-unused-vars
 export default function StatsCard({ title, value, icon: Icon, color, trend }) {
   return (
-    <div className="card shadow-xl hover:-translate-y-2 transition-all duration-300 group" style={{ padding: '2rem' }}>
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-lg font-bold mb-2 transition-colors group-hover:text-primary" style={{ color: 'var(--color-text-muted)' }}>{title}</p>
-          <h3 className="text-4xl font-black" style={{ color: 'var(--color-text-primary)' }}>{value}</h3>
-          {trend && (
-            <div className="flex items-center gap-2 mt-4">
-              <span className="flex items-center text-sm font-black px-3 py-1 rounded-full" style={{
+    <div
+      className="card shadow-xl transition-shadow duration-300 hover:shadow-2xl"
+      style={{ padding: '1.25rem' }}
+      role="group"
+      aria-label={`${title}: ${value}`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm md:text-base font-bold mb-1 truncate" style={{ color: 'var(--color-text-muted)' }}>{title}</p>
+          <h3 className="text-2xl md:text-3xl font-black truncate" style={{ color: 'var(--color-text-primary)' }}>{value}</h3>
+          {trend != null && (
+            <div className="flex items-center gap-2 mt-3">
+              <span className="flex items-center text-xs font-black px-2.5 py-1 rounded-full" style={{
                 background: trend > 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                 color: trend > 0 ? 'var(--color-success)' : 'var(--color-error)'
               }}>
                 {trend > 0 ? '+' : ''}{trend}%
               </span>
-              <span className="text-sm font-bold" style={{ color: 'var(--color-text-muted)' }}>vs last month</span>
+              <span className="text-xs font-bold hidden sm:inline" style={{ color: 'var(--color-text-muted)' }}>vs last month</span>
             </div>
           )}
         </div>
         <div
-          className="p-4 rounded-[1.25rem] shadow-lg group-hover:scale-110 transition-transform duration-300"
+          className="p-3 md:p-4 rounded-2xl shadow-lg shrink-0"
           style={{ background: `${color}15`, color: color }}
+          aria-hidden="true"
         >
-          <Icon size={32} strokeWidth={2.5} />
+          <Icon size={26} strokeWidth={2.5} />
         </div>
       </div>
     </div>

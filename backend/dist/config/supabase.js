@@ -5,7 +5,12 @@ const supabase_js_1 = require("@supabase/supabase-js");
 let supabaseAdmin;
 function getSupabaseAdmin() {
     if (!supabaseAdmin) {
-        supabaseAdmin = (0, supabase_js_1.createClient)(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+        const url = process.env.SUPABASE_URL;
+        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        if (!url || !serviceKey) {
+            throw new Error('Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY. Check backend/.env (see .env_example.txt).');
+        }
+        supabaseAdmin = (0, supabase_js_1.createClient)(url, serviceKey, {
             auth: {
                 autoRefreshToken: false,
                 persistSession: false,

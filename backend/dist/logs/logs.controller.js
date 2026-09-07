@@ -18,13 +18,15 @@ const logs_service_1 = require("./logs.service");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
+const pagination_helper_1 = require("../common/helpers/pagination.helper");
 let LogsController = class LogsController {
     logsService;
     constructor(logsService) {
         this.logsService = logsService;
     }
     findAll(page, limit, entityType) {
-        return this.logsService.findAll(page ? parseInt(page) : 1, limit ? parseInt(limit) : 50, entityType);
+        const { page: p, limit: l } = (0, pagination_helper_1.parsePagination)(page, limit, 50);
+        return this.logsService.findAll(p, l, entityType);
     }
 };
 exports.LogsController = LogsController;

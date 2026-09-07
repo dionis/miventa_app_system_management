@@ -21,7 +21,8 @@ __decorate([
     __metadata("design:type", String)
 ], CreateOrderDto.prototype, "plan_id", void 0);
 __decorate([
-    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateOrderDto.prototype, "user_id", void 0);
 //# sourceMappingURL=create-order.dto.js.map

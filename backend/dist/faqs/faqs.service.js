@@ -54,10 +54,7 @@ let FaqsService = class FaqsService {
         return data;
     }
     async remove(id) {
-        const { error } = await this.supabase
-            .from('faqs')
-            .delete()
-            .eq('id', id);
+        const { error } = await this.supabase.from('faqs').delete().eq('id', id);
         if (error)
             throw error;
         return { deleted: true };

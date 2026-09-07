@@ -3,7 +3,7 @@ import { FaqsController } from './faqs.controller';
 import { FaqsService } from './faqs.service';
 
 @Module({
-    controllers: [FaqsController],
-    providers: [FaqsService],
+  controllers: [FaqsController],
+  providers: [FaqsService],
 })
-export class FaqsModule { }
+export class FaqsModule {}

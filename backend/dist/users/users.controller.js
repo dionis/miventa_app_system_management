@@ -18,13 +18,15 @@ const users_service_1 = require("./users.service");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
+const pagination_helper_1 = require("../common/helpers/pagination.helper");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
         this.usersService = usersService;
     }
     findAll(page, limit, search) {
-        return this.usersService.findAll(page ? parseInt(page) : 1, limit ? parseInt(limit) : 20, search);
+        const { page: p, limit: l } = (0, pagination_helper_1.parsePagination)(page, limit);
+        return this.usersService.findAll(p, l, search);
     }
     findOne(id) {
         return this.usersService.findOne(id);

@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { LeadsModule } from './leads/leads.module';
 import { PaymentsModule } from './payments/payments.module';
@@ -8,10 +10,18 @@ import { UsersModule } from './users/users.module';
 import { FaqsModule } from './faqs/faqs.module';
 import { LogsModule } from './logs/logs.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { HealthModule } from './health/health.module';
+import { envValidationSchema } from './config/env.validation';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: envValidationSchema,
+      validationOptions: { abortEarly: false },
+    }),
+    ThrottlerModule.forRoot([{ name: 'default', ttl: 60 * 1000, limit: 120 }]),
+    HealthModule,
     AuthModule,
     LeadsModule,
     PaymentsModule,
@@ -21,5 +31,6 @@ import { DashboardModule } from './dashboard/dashboard.module';
     LogsModule,
     DashboardModule,
   ],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
-export class AppModule { }
+export class AppModule {}

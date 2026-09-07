@@ -1,100 +1,117 @@
 import { Injectable } from '@nestjs/common';
 import { getSupabaseAdmin } from '../config/supabase';
 
+const CACHE_TTL_MS = 60 * 1000;
+let cache: { at: number; data: any } | null = null;
+
 @Injectable()
 export class DashboardService {
-    private get supabase() {
-        return getSupabaseAdmin();
+  private get supabase() {
+    return getSupabaseAdmin();
+  }
+
+  async getStats() {
+    // P1: caché en memoria 60s (evita el N+1 y el full-scan por cada refresh del admin)
+    if (cache && Date.now() - cache.at < CACHE_TTL_MS) return cache.data;
+
+    const sb = this.supabase;
+    // P1: counts en paralelo (antes: 7 queries secuenciales + 6 en loop)
+    const [
+      salesAgg,
+      activeSubs,
+      totalUsers,
+      activeReferrers,
+      referralsAgg,
+      pendingPayments,
+      unreadLeads,
+    ] = await Promise.all([
+      // Una sola query de pagos completados; el agregado mensual se hace en JS
+      sb
+        .from('payments')
+        .select('amount,created_at')
+        .eq('status', 'completed')
+        .limit(20000),
+      sb
+        .from('subscriptions')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active'),
+      sb.from('profiles').select('*', { count: 'exact', head: true }),
+      sb
+        .from('referrers')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true),
+      sb.from('referrers').select('total_referrals').limit(20000),
+      sb
+        .from('payments')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending'),
+      sb.from('leads').select('*', { count: 'exact', head: true }).eq('is_read', false),
+    ]);
+
+    const completed = salesAgg.data || [];
+    const totalSales = completed.reduce(
+      (sum, p) => sum + (parseFloat(p.amount) || 0),
+      0,
+    );
+
+    // Agregado mensual en memoria (últimos 6 meses) — 0 queries extra
+    const buckets = new Map<string, { sales: number; transactions: number }>();
+    const keys: string[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      keys.push(key);
+      buckets.set(key, { sales: 0, transactions: 0 });
     }
-
-    async getStats() {
-        // Total sales (completed payments)
-        const { data: salesData } = await this.supabase
-            .from('payments')
-            .select('amount')
-            .eq('status', 'completed');
-
-        const totalSales = (salesData || []).reduce((sum, p) => sum + parseFloat(p.amount), 0);
-        const totalTransactions = salesData?.length || 0;
-
-        // Active subscriptions
-        const { count: activeSubscriptions } = await this.supabase
-            .from('subscriptions')
-            .select('*', { count: 'exact', head: true })
-            .eq('status', 'active');
-
-        // Total users
-        const { count: totalUsers } = await this.supabase
-            .from('profiles')
-            .select('*', { count: 'exact', head: true });
-
-        // Active referrers
-        const { count: activeReferrers } = await this.supabase
-            .from('referrers')
-            .select('*', { count: 'exact', head: true })
-            .eq('is_active', true);
-
-        // Total referrals
-        const { data: referralData } = await this.supabase
-            .from('referrers')
-            .select('total_referrals');
-        const totalReferrals = (referralData || []).reduce((sum, r) => sum + r.total_referrals, 0);
-
-        // Pending payments
-        const { count: pendingPayments } = await this.supabase
-            .from('payments')
-            .select('*', { count: 'exact', head: true })
-            .eq('status', 'pending');
-
-        // Unread leads
-        const { count: unreadLeads } = await this.supabase
-            .from('leads')
-            .select('*', { count: 'exact', head: true })
-            .eq('is_read', false);
-
-        // Monthly sales data (last 6 months)
-        const monthlySales: { month: string; sales: number; transactions: number }[] = [];
-        for (let i = 5; i >= 0; i--) {
-            const date = new Date();
-            date.setMonth(date.getMonth() - i);
-            const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).toISOString();
-            const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString();
-
-            const { data: monthData } = await this.supabase
-                .from('payments')
-                .select('amount')
-                .eq('status', 'completed')
-                .gte('created_at', startOfMonth)
-                .lte('created_at', endOfMonth);
-
-            monthlySales.push({
-                month: date.toLocaleString('en', { month: 'short' }),
-                sales: (monthData || []).reduce((sum, p) => sum + parseFloat(p.amount), 0),
-                transactions: monthData?.length || 0,
-            });
-        }
-
-        return {
-            totalSales,
-            totalTransactions,
-            activeSubscriptions: activeSubscriptions || 0,
-            totalUsers: totalUsers || 0,
-            activeReferrers: activeReferrers || 0,
-            totalReferrals,
-            pendingPayments: pendingPayments || 0,
-            unreadLeads: unreadLeads || 0,
-            monthlySales,
-        };
+    for (const p of completed) {
+      const d = new Date(p.created_at);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const b = buckets.get(key);
+      if (b) {
+        b.sales += parseFloat(p.amount) || 0;
+        b.transactions += 1;
+      }
     }
+    const monthlySales = keys.map((key) => {
+      const [y, m] = key.split('-').map(Number);
+      const label = new Date(y, m, 1).toLocaleString('en', { month: 'short' });
+      const b = buckets.get(key)!;
+      return {
+        month: label,
+        sales: Math.round(b.sales * 100) / 100,
+        transactions: b.transactions,
+      };
+    });
 
-    async getPlans() {
-        const { data, error } = await this.supabase
-            .from('plans')
-            .select('*')
-            .eq('is_active', true)
-            .order('duration_months', { ascending: true });
+    const totalReferrals = (referralsAgg.data || []).reduce(
+      (sum, r) => sum + (r.total_referrals || 0),
+      0,
+    );
 
-        if (error) throw error;
-        return data;
-    }
+    const data = {
+      totalSales: Math.round(totalSales * 100) / 100,
+      totalTransactions: completed.length,
+      activeSubscriptions: activeSubs.count || 0,
+      totalUsers: totalUsers.count || 0,
+      activeReferrers: activeReferrers.count || 0,
+      totalReferrals,
+      pendingPayments: pendingPayments.count || 0,
+      unreadLeads: unreadLeads.count || 0,
+      monthlySales,
+    };
+    cache = { at: Date.now(), data };
+    return data;
+  }
+
+  async getPlans() {
+    const { data, error } = await this.supabase
+      .from('plans')
+      .select('*')
+      .eq('is_active', true)
+      .order('duration_months', { ascending: true });
+
+    if (error) throw error;
+    return data;
+  }
 }

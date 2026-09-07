@@ -9,6 +9,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
+const throttler_1 = require("@nestjs/throttler");
+const core_1 = require("@nestjs/core");
 const auth_module_1 = require("./auth/auth.module");
 const leads_module_1 = require("./leads/leads.module");
 const payments_module_1 = require("./payments/payments.module");
@@ -17,13 +19,21 @@ const users_module_1 = require("./users/users.module");
 const faqs_module_1 = require("./faqs/faqs.module");
 const logs_module_1 = require("./logs/logs.module");
 const dashboard_module_1 = require("./dashboard/dashboard.module");
+const health_module_1 = require("./health/health.module");
+const env_validation_1 = require("./config/env.validation");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            config_1.ConfigModule.forRoot({ isGlobal: true }),
+            config_1.ConfigModule.forRoot({
+                isGlobal: true,
+                validationSchema: env_validation_1.envValidationSchema,
+                validationOptions: { abortEarly: false },
+            }),
+            throttler_1.ThrottlerModule.forRoot([{ name: 'default', ttl: 60 * 1000, limit: 120 }]),
+            health_module_1.HealthModule,
             auth_module_1.AuthModule,
             leads_module_1.LeadsModule,
             payments_module_1.PaymentsModule,
@@ -33,6 +43,7 @@ exports.AppModule = AppModule = __decorate([
             logs_module_1.LogsModule,
             dashboard_module_1.DashboardModule,
         ],
+        providers: [{ provide: core_1.APP_GUARD, useClass: throttler_1.ThrottlerGuard }],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

@@ -6,18 +6,18 @@ import { Roles } from '../auth/roles.decorator';
 
 @Controller('api/dashboard')
 export class DashboardController {
-    constructor(private readonly dashboardService: DashboardService) { }
+  constructor(private readonly dashboardService: DashboardService) {}
 
-    @Get('stats')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('admin', 'staff')
-    getStats() {
-        return this.dashboardService.getStats();
-    }
+  @Get('stats')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'staff')
+  getStats() {
+    return this.dashboardService.getStats();
+  }
 
-    // Public plans endpoint for the landing page
-    @Get('plans')
-    getPlans() {
-        return this.dashboardService.getPlans();
-    }
+  // Public plans endpoint for the landing page
+  @Get('plans')
+  getPlans() {
+    return this.dashboardService.getPlans();
+  }
 }

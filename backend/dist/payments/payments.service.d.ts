@@ -1,7 +1,6 @@
-import { CreateOrderDto } from './dto/create-order.dto';
 export declare class PaymentsService {
     private get supabase();
-    createOrder(dto: CreateOrderDto): Promise<{
+    createOrder(plan_id: string, authUserId: string): Promise<{
         payment_id: any;
         transaction_ref: string;
         amount: any;
@@ -10,7 +9,7 @@ export declare class PaymentsService {
         qr_code: string;
         status: string;
     }>;
-    getPaymentStatus(paymentId: string): Promise<any>;
+    getPaymentStatus(paymentId: string, authUser?: any): Promise<any>;
     findAll(page?: number, limit?: number): Promise<{
         data: any[];
         total: number | null;

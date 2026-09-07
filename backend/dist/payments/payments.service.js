@@ -44,15 +44,18 @@ const common_1 = require("@nestjs/common");
 const supabase_1 = require("../config/supabase");
 const QRCode = __importStar(require("qrcode"));
 const uuid_1 = require("uuid");
+const qr_sign_util_1 = require("./qr-sign.util");
 let PaymentsService = class PaymentsService {
     get supabase() {
         return (0, supabase_1.getSupabaseAdmin)();
     }
-    async createOrder(dto) {
+    async createOrder(plan_id, authUserId) {
+        if (!authUserId)
+            throw new common_1.ForbiddenException('Authentication required');
         const { data: plan, error: planError } = await this.supabase
             .from('plans')
             .select('*')
-            .eq('id', dto.plan_id)
+            .eq('id', plan_id)
             .single();
         if (planError || !plan)
             throw new common_1.NotFoundException('Plan not found');
@@ -64,23 +67,24 @@ let PaymentsService = class PaymentsService {
         const { data: subscription, error: subError } = await this.supabase
             .from('subscriptions')
             .insert({
-            user_id: dto.user_id,
-            plan_id: dto.plan_id,
+            user_id: authUserId,
+            plan_id,
             status: 'pending',
             starts_at: now.toISOString(),
             expires_at: expiresAt.toISOString(),
         })
             .select()
             .single();
-        if (subError)
-            throw subError;
-        const transactionRef = `TXN-${(0, uuid_1.v4)().split('-')[0].toUpperCase()}`;
+        if (subError || !subscription) {
+            throw (subError ?? new common_1.BadRequestException('Could not create subscription'));
+        }
+        const transactionRef = `TXN-${(0, uuid_1.v4)().replace(/-/g, '').slice(0, 12).toUpperCase()}`;
         const { data: payment, error: payError } = await this.supabase
             .from('payments')
             .insert({
-            user_id: dto.user_id,
+            user_id: authUserId,
             subscription_id: subscription.id,
-            plan_id: dto.plan_id,
+            plan_id,
             amount: plan.price,
             currency: plan.currency,
             status: 'pending',
@@ -89,9 +93,14 @@ let PaymentsService = class PaymentsService {
         })
             .select()
             .single();
-        if (payError)
-            throw payError;
-        const qrPayload = JSON.stringify({
+        if (payError || !payment) {
+            await this.supabase
+                .from('subscriptions')
+                .delete()
+                .eq('id', subscription.id);
+            throw payError ?? new common_1.BadRequestException('Could not create payment');
+        }
+        const qrPayload = (0, qr_sign_util_1.signQrPayload)({
             transaction_ref: transactionRef,
             amount: plan.price,
             currency: plan.currency,
@@ -108,11 +117,15 @@ let PaymentsService = class PaymentsService {
             .update({ qr_code_data: qrCodeBase64 })
             .eq('id', payment.id);
         await this.supabase.from('event_logs').insert({
-            actor_id: dto.user_id,
+            actor_id: authUserId,
             action: 'payment_initiated',
             entity_type: 'payment',
             entity_id: payment.id,
-            details: { plan_name: plan.name, amount: plan.price, transaction_ref: transactionRef },
+            details: {
+                plan_name: plan.name,
+                amount: plan.price,
+                transaction_ref: transactionRef,
+            },
         });
         return {
             payment_id: payment.id,
@@ -124,14 +137,18 @@ let PaymentsService = class PaymentsService {
             status: 'pending',
         };
     }
-    async getPaymentStatus(paymentId) {
+    async getPaymentStatus(paymentId, authUser) {
         const { data, error } = await this.supabase
             .from('payments')
             .select('*, plans(*)')
             .eq('id', paymentId)
             .single();
-        if (error)
+        if (error || !data)
             throw new common_1.NotFoundException('Payment not found');
+        const role = authUser?.role;
+        if (role !== 'admin' && role !== 'staff' && data.user_id !== authUser?.id) {
+            throw new common_1.ForbiddenException('Not your payment');
+        }
         return data;
     }
     async findAll(page = 1, limit = 20) {

@@ -1,25 +1,32 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { X, Loader2, CheckCircle, QrCode } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { X, Loader2, CheckCircle, QrCode, LogIn } from 'lucide-react';
 import api from '../../lib/axios';
 import { useAuth } from '../../context/AuthContext';
 
 export default function PaymentModal({ plan, onClose }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [qrData, setQrData] = useState(null);
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!plan) return;
+    // P0: exigir login. Antes se enviaba un UUID falso 000... que creaba basura huérfana.
+    if (!user) {
+      setStatus('auth_required');
+      return;
+    }
     let cancelled = false;
 
     async function createOrder() {
       try {
         setStatus('loading');
+        // P0: solo plan_id. El user_id lo toma el backend del JWT.
         const { data } = await api.post('/payments/create-order', {
           plan_id: plan.id,
-          user_id: user?.id || '00000000-0000-0000-0000-000000000000',
         });
         if (cancelled) return;
         setQrData(data);
@@ -33,7 +40,7 @@ export default function PaymentModal({ plan, onClose }) {
 
     createOrder();
     return () => { cancelled = true; };
-  }, [plan, user?.id]);
+  }, [plan, user]);
 
   useEffect(() => {
     if (!qrData) return;
@@ -51,6 +58,11 @@ export default function PaymentModal({ plan, onClose }) {
     return () => clearInterval(interval);
   }, [qrData]);
 
+  const goToLogin = () => {
+    onClose?.();
+    navigate('/login');
+  };
+
   if (!plan) return null;
 
   return (
@@ -66,6 +78,17 @@ export default function PaymentModal({ plan, onClose }) {
           <h3 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Complete Payment</h3>
           <p className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>{plan.name} Plan — ${plan.price}</p>
         </div>
+
+        {status === 'auth_required' && (
+          <div className="flex flex-col items-center py-8 text-center">
+            <p className="mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+              You need to sign in to complete this purchase.
+            </p>
+            <button onClick={goToLogin} className="btn-primary">
+              <LogIn size={18} /> Go to login
+            </button>
+          </div>
+        )}
 
         {status === 'loading' && (
           <div className="flex flex-col items-center py-12">
@@ -111,6 +134,10 @@ export default function PaymentModal({ plan, onClose }) {
               onClick={() => {
                 setQrData(null);
                 setError(null);
+                setStatus('loading');
+                api.post('/payments/create-order', { plan_id: plan.id })
+                  .then(({ data }) => { setQrData(data); setStatus('pending'); })
+                  .catch((err) => { setError(err.response?.data?.message || 'Failed to create order'); setStatus('error'); });
               }}
               className="btn-primary"
             >

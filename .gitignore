@@ -1,6 +1,29 @@
 /.agents
 /skills-lock.json
-/backend/.env
-/backend/node_modules
-/frontend/.env
 .opencode
+
+# Env — NUNCA commitear reales (ya hubo secretos en historial: rotar keys)
+backend/.env
+backend/.env.local
+backend/.env.*.local
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Deps / build
+backend/node_modules
+frontend/node_modules
+backend/dist
+frontend/dist
+backend/coverage
+frontend/coverage
+
+# Vite / logs / OS
+*.log
+npm-debug.log*
+.vite
+.DS_Store
+Thumbs.db
+
+# Herramientas locales / ruido
+graphify-out/

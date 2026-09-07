@@ -44,33 +44,77 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
 const users_service_1 = require("../users/users.service");
 const jwt_1 = require("@nestjs/jwt");
 const bcrypt = __importStar(require("bcrypt"));
 let AuthService = class AuthService {
     usersService;
     jwtService;
-    constructor(usersService, jwtService) {
+    config;
+    constructor(usersService, jwtService, config) {
         this.usersService = usersService;
         this.jwtService = jwtService;
+        this.config = config;
     }
     async validateUser(email, pass) {
-        const user = await this.usersService.findByEmail(email);
-        if (user && await bcrypt.compare(pass, user.password_hash)) {
+        const normalized = email?.trim().toLowerCase();
+        const user = await this.usersService.findByEmail(normalized);
+        if (user && (await bcrypt.compare(pass, user.password_hash))) {
             const { password_hash, ...result } = user;
             return result;
         }
         return null;
     }
-    async login(user) {
+    signAccess(user) {
         const payload = { email: user.email, sub: user.id, role: user.role };
+        return this.jwtService.sign(payload, {
+            secret: this.config.get('JWT_SECRET'),
+            expiresIn: this.config.get('JWT_EXPIRES_IN') || '15m',
+        });
+    }
+    signRefresh(user) {
+        const refreshSecret = this.config.get('JWT_REFRESH_SECRET') ||
+            this.config.get('JWT_SECRET');
+        const payload = { sub: user.id, type: 'refresh' };
+        return this.jwtService.sign(payload, {
+            secret: refreshSecret,
+            expiresIn: this.config.get('JWT_REFRESH_EXPIRES_IN') || '7d',
+        });
+    }
+    async login(user) {
         return {
-            access_token: this.jwtService.sign(payload),
-            user
+            access_token: this.signAccess(user),
+            refresh_token: this.signRefresh(user),
+            user,
         };
     }
+    async refresh(refreshToken) {
+        const refreshSecret = this.config.get('JWT_REFRESH_SECRET') ||
+            this.config.get('JWT_SECRET');
+        try {
+            const decoded = this.jwtService.verify(refreshToken, {
+                secret: refreshSecret,
+            });
+            if (decoded?.type !== 'refresh' || !decoded?.sub) {
+                throw new common_1.UnauthorizedException('Invalid refresh token');
+            }
+            const profile = await this.usersService.findOne(decoded.sub);
+            return {
+                access_token: this.signAccess(profile),
+                user: profile,
+            };
+        }
+        catch {
+            throw new common_1.UnauthorizedException('Invalid refresh token');
+        }
+    }
     async register(userData) {
-        const user = await this.usersService.create(userData);
+        const { role: _ignored, ...safe } = userData;
+        const user = await this.usersService.create({
+            ...safe,
+            email: safe.email?.trim().toLowerCase(),
+        });
         return this.login(user);
     }
 };
@@ -78,6 +122,7 @@ exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [users_service_1.UsersService,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        config_1.ConfigService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

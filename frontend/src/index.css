@@ -250,6 +250,65 @@ body {
   width: 8px;
 }
 
+/* ========== Mobile interactivity guarantees ========== */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: rgba(249, 115, 22, 0.15);
+}
+
+/* Tap targets mínimos 44px en mobile */
+@media (max-width: 768px) {
+  button, a, [role="button"] {
+    min-height: 44px;
+  }
+  button:not(:has(svg:only-child)):not(.compact), a:not(:has(svg:only-child)) {
+    min-height: 44px;
+  }
+}
+
+/* Focus visible para teclado + lectores */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Skeleton shimmer para loaders */
+.skeleton {
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-tertiary) 25%,
+    var(--color-border) 50%,
+    var(--color-bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* Recharts: evitar overflow horizontal en mobile */
+.recharts-wrapper, .recharts-surface {
+  max-width: 100%;
+}
+
+/* Respetar movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 ::-webkit-scrollbar-track {
   background: var(--color-bg-secondary);
 }
