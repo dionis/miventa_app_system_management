@@ -20,6 +20,8 @@ const faqs_module_1 = require("./faqs/faqs.module");
 const logs_module_1 = require("./logs/logs.module");
 const dashboard_module_1 = require("./dashboard/dashboard.module");
 const health_module_1 = require("./health/health.module");
+const plans_module_1 = require("./plans/plans.module");
+const licenses_module_1 = require("./licenses/licenses.module");
 const env_validation_1 = require("./config/env.validation");
 let AppModule = class AppModule {
 };
@@ -42,6 +44,8 @@ exports.AppModule = AppModule = __decorate([
             faqs_module_1.FaqsModule,
             logs_module_1.LogsModule,
             dashboard_module_1.DashboardModule,
+            plans_module_1.PlansModule,
+            licenses_module_1.LicensesModule,
         ],
         providers: [{ provide: core_1.APP_GUARD, useClass: throttler_1.ThrottlerGuard }],
     })
