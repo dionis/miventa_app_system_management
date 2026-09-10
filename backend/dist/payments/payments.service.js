@@ -38,6 +38,9 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PaymentsService = void 0;
 const common_1 = require("@nestjs/common");
@@ -45,7 +48,12 @@ const supabase_1 = require("../config/supabase");
 const QRCode = __importStar(require("qrcode"));
 const uuid_1 = require("uuid");
 const qr_sign_util_1 = require("./qr-sign.util");
+const licenses_service_1 = require("../licenses/licenses.service");
 let PaymentsService = class PaymentsService {
+    licenses;
+    constructor(licenses) {
+        this.licenses = licenses;
+    }
     get supabase() {
         return (0, supabase_1.getSupabaseAdmin)();
     }
@@ -149,7 +157,17 @@ let PaymentsService = class PaymentsService {
         if (role !== 'admin' && role !== 'staff' && data.user_id !== authUser?.id) {
             throw new common_1.ForbiddenException('Not your payment');
         }
-        return data;
+        try {
+            const { data: license } = await this.supabase
+                .from('licenses')
+                .select('*')
+                .eq('payment_id', paymentId)
+                .maybeSingle();
+            return { ...data, license: license ?? null };
+        }
+        catch {
+            return data;
+        }
     }
     async findAll(page = 1, limit = 20) {
         const from = (page - 1) * limit;
@@ -171,6 +189,29 @@ let PaymentsService = class PaymentsService {
             .single();
         if (fetchError || !payment)
             throw new common_1.NotFoundException('Payment not found');
+        try {
+            const { data: existing } = await this.supabase
+                .from('licenses')
+                .select('*')
+                .eq('payment_id', paymentId)
+                .maybeSingle();
+            if (existing) {
+                return {
+                    status: 'completed',
+                    payment_id: paymentId,
+                    license_key: existing.license_key,
+                    license: existing,
+                    reused: true,
+                };
+            }
+        }
+        catch {
+        }
+        const { data: plan } = await this.supabase
+            .from('plans')
+            .select('*')
+            .eq('id', payment.plan_id)
+            .maybeSingle();
         await this.supabase
             .from('payments')
             .update({ status: 'completed', updated_at: new Date().toISOString() })
@@ -186,11 +227,23 @@ let PaymentsService = class PaymentsService {
             entity_id: paymentId,
             details: { amount: payment.amount, currency: payment.currency },
         });
-        return { status: 'completed', payment_id: paymentId };
+        try {
+            const license = await this.licenses.issueForPayment(payment, plan);
+            return {
+                status: 'completed',
+                payment_id: paymentId,
+                license_key: license?.license_key ?? null,
+                license,
+            };
+        }
+        catch (e) {
+            return { status: 'completed', payment_id: paymentId, license_key: null, licenseError: 'license-pending' };
+        }
     }
 };
 exports.PaymentsService = PaymentsService;
 exports.PaymentsService = PaymentsService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [licenses_service_1.LicensesService])
 ], PaymentsService);
 //# sourceMappingURL=payments.service.js.map

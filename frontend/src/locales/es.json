@@ -23,6 +23,11 @@
         "accent": "transparentes",
         "subtitle": "Elige el plan que se adapte a tus necesidades. Todos los planes incluyen nuestras funciones principales.",
         "popular": "Más Popular",
+        "currentPlan": "Plan actual",
+        "switchPlan": "Cambiar a este plan",
+        "tierNormal": "Normal",
+        "tierPremium": "Premium",
+        "tierSubtitle": "Mismos planes, distinto valor. Cambia de tier cuando quieras.",
         "month": "mes",
         "months": "meses",
         "mo": "mes",
@@ -69,6 +74,59 @@
                     "Integraciones personalizadas"
                 ]
             },
+            "premium": {
+                "name": "Premium",
+                "features": [
+                    "Todo lo del Anual",
+                    "20 usuarios",
+                    "Soporte telefónico 24/7",
+                    "SSO/SAML",
+                    "Registro de auditoría",
+                    "SLA personalizado",
+                    "Gerente de onboarding"
+                ]
+            },
+            "premium-monthly": {
+                "name": "Mensual",
+                "features": [
+                    "Todo lo del Mensual, valor premium",
+                    "5 usuarios",
+                    "Soporte prioritario",
+                    "Analítica avanzada"
+                ]
+            },
+            "premium-quarterly": {
+                "name": "Trimestral",
+                "features": [
+                    "Todo lo del Trimestral, valor premium",
+                    "8 usuarios",
+                    "Soporte prioritario",
+                    "Analítica avanzada",
+                    "Acceso API"
+                ]
+            },
+            "premium-semiannual": {
+                "name": "Semestral",
+                "features": [
+                    "Todo lo del Semestral, valor premium",
+                    "12 usuarios",
+                    "Soporte prioritario",
+                    "Analítica avanzada",
+                    "Acceso API"
+                ]
+            },
+            "premium-annual": {
+                "name": "Anual",
+                "features": [
+                    "Todo lo del Anual",
+                    "20 usuarios",
+                    "Soporte telefónico 24/7",
+                    "SSO/SAML",
+                    "Registro de auditoría",
+                    "SLA personalizado",
+                    "Gerente de onboarding"
+                ]
+            },
             "enterprise": {
                 "name": "Empresarial",
                 "features": [
@@ -101,6 +159,7 @@
     },
     "sidebar": {
         "dashboard": "Panel de Control",
+        "plans": "Planes",
         "referrals": "Referidos",
         "users": "Usuarios",
         "faqs": "Gestor de FAQ",
@@ -146,6 +205,36 @@
         "madeWith": "Hecho con",
                 "forStartups": "para startups en todas partes"
     },
+    "common": {
+        "cancel": "Cancelar",
+        "confirm": "Confirmar",
+        "close": "Cerrar",
+        "delete": "Eliminar",
+        "retry": "Reintentar"
+    },
+    "payment": {
+        "title": "Completar Pago",
+        "generatingQR": "Generando código QR...",
+        "waitingPayment": "Esperando el pago...",
+        "transactionRef": "Referencia de Transacción",
+        "paymentSuccessful": "¡Pago Exitoso!",
+        "welcomeAboard": "Tu suscripción ha sido activada. ¡Bienvenido!",
+        "continue": "Continuar",
+        "tryAgain": "Reintentar",
+        "signInRequired": "Debes iniciar sesión para completar esta compra.",
+        "switchNotice": "Cambiarás de {{from}} a {{to}}. El nuevo plan se activa al completarse el pago.",
+        "goToLogin": "Ir a iniciar sesión",
+        "createOrderFailed": "No se pudo crear la orden",
+        "licenseKey": "Tu llave de licencia",
+        "copyKey": "Copiar llave",
+        "copied": "¡Copiado!",
+        "sendEmail": "Enviar por correo",
+        "sending": "Enviando...",
+        "emailSent": "¡Enviado!",
+        "emailFailed": "No se pudo enviar. Cópiala manualmente.",
+        "downloadKey": "Descargar llave",
+        "licensePending": "Tu licencia se está generando, quedará en Mis suscripciones."
+    },
     "admin": {
         "dashboard": {
             "title": "Panel de Control",
@@ -186,6 +275,11 @@
             "update": "Actualizar",
             "noData": "No se encontraron referidos",
             "deleteConfirm": "¿Estás seguro de eliminar este referido?",
+            "created": "Referido creado",
+            "updated": "Referido actualizado",
+            "deleted": "Referido eliminado",
+            "saveError": "Error al guardar el referido",
+            "deleteError": "Error al eliminar el referido",
             "copied": "¡Copiado!"
         },
         "users": {
@@ -215,6 +309,14 @@
             "create": "Crear",
             "update": "Actualizar",
             "order": "Orden",
+            "created": "FAQ creada",
+            "updated": "FAQ actualizada",
+            "deleted": "FAQ eliminada",
+            "saveError": "Error al guardar la FAQ",
+            "deleteError": "Error al eliminar la FAQ",
+            "publishedMsg": "FAQ publicada",
+            "draftMsg": "FAQ en borrador",
+            "updateError": "Error al actualizar la FAQ",
             "deleteConfirm": "¿Estás seguro de eliminar esta FAQ?"
         },
         "logs": {
@@ -227,6 +329,35 @@
             "entity": "Entidad",
             "details": "Detalles",
             "actor": "Actor"
+        },
+        "plans": {
+            "title": "Planes",
+            "subtitle": "Gestiona servicios, etapas y precios de cada plan.",
+            "addNew": "Agregar Plan",
+            "name": "Nombre",
+            "key": "Clave",
+            "tier": "Tier",
+            "tierNormal": "Normal",
+            "tierPremium": "Premium",
+            "filterAll": "Todos",
+            "description": "Descripción",
+            "duration": "Duración (meses)",
+            "price": "Precio",
+            "currency": "Moneda",
+            "enterprise": "Empresarial",
+            "active": "Activo",
+            "inactive": "Inactivo",
+            "services": "Servicios incluidos",
+            "addService": "Agregar servicio",
+            "servicePlaceholder": "p. ej. Soporte prioritario",
+            "noData": "No se encontraron planes",
+            "addTitle": "Agregar",
+            "editTitle": "Editar",
+            "create": "Crear",
+            "update": "Actualizar",
+            "deleteConfirm": "¿Eliminar este plan? Solo planes sin historial se pueden eliminar.",
+            "saveError": "Error al guardar el plan",
+            "deleteError": "Error al eliminar. Los planes con historial deben desactivarse."
         }
     }
 }

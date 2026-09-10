@@ -15,5 +15,10 @@ export const envValidationSchema = Joi.object({
   // P1: pagos
   PAYMENTS_QR_SECRET: Joi.string().min(16).optional(),
   PAYMENTS_WEBHOOK_SECRET: Joi.string().min(16).optional(),
+  // P1: licencias POS (port Dart). Debe coincidir con el validador MiVenta.
+  LICENSE_SECRET: Joi.string().min(16).optional(),
+  // Email de licencias (Resend). Sin esto el correo queda pendiente + reenvío manual.
+  RESEND_API_KEY: Joi.string().optional(),
+  MAIL_FROM: Joi.string().optional(),
   NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
 });

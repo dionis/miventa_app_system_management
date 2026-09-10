@@ -5,11 +5,10 @@ export default function StatsCard({ title, value, icon: Icon, color, trend }) {
   return (
     <div
       className="card shadow-xl transition-shadow duration-300 hover:shadow-2xl"
-      style={{ padding: '1.25rem' }}
       role="group"
       aria-label={`${title}: ${value}`}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-sm md:text-base font-bold mb-1 truncate" style={{ color: 'var(--color-text-muted)' }}>{title}</p>
           <h3 className="text-2xl md:text-3xl font-black truncate" style={{ color: 'var(--color-text-primary)' }}>{value}</h3>

@@ -11,6 +11,7 @@ import LoginPage from './pages/LoginPage';
 // Admin Pages (lazy: reduce bundle inicial ~781KB -> split por ruta, clave en mobile)
 import AdminLayout from './components/admin/AdminLayout';
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
+const Plans = lazy(() => import('./pages/admin/Plans'));
 const Referrals = lazy(() => import('./pages/admin/Referrals'));
 const Users = lazy(() => import('./pages/admin/Users'));
 const FAQManager = lazy(() => import('./pages/admin/FAQManager'));
@@ -45,6 +46,14 @@ function App() {
           >
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<Suspense fallback={<RouteLoader />}><Dashboard /></Suspense>} />
+            <Route
+              path="plans"
+              element={
+                <ProtectedRoute roles={['admin', 'staff']}>
+                  <Suspense fallback={<RouteLoader />}><Plans /></Suspense>
+                </ProtectedRoute>
+              }
+            />
             <Route path="referrals" element={<Suspense fallback={<RouteLoader />}><Referrals /></Suspense>} />
             <Route
               path="users"

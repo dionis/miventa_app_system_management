@@ -27,7 +27,15 @@ export default function LoginPage() {
     setError(null);
     try {
       await signIn(values.email.trim().toLowerCase(), values.password);
-      navigate('/admin/dashboard');
+      // Si venía de Pricing (cambio de plan), volver a la landing:
+      // el modal se reabre solo desde sessionStorage.pending_plan
+      let pending = null;
+      try {
+        pending = sessionStorage.getItem('pending_plan');
+      } catch {
+        pending = null;
+      }
+      navigate(pending ? '/' : '/admin/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Invalid credentials');
     }

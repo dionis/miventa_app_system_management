@@ -8,9 +8,12 @@ import { getSupabaseAdmin } from '../config/supabase';
 import * as QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
 import { signQrPayload } from './qr-sign.util';
+import { LicensesService } from '../licenses/licenses.service';
 
 @Injectable()
 export class PaymentsService {
+  constructor(private readonly licenses: LicensesService) {}
+
   private get supabase() {
     return getSupabaseAdmin();
   }
@@ -140,7 +143,18 @@ export class PaymentsService {
     if (role !== 'admin' && role !== 'staff' && data.user_id !== authUser?.id) {
       throw new ForbiddenException('Not your payment');
     }
-    return data;
+    // Llave emitida al confirmar (webhook/admin). El frontend la muestra
+    // para copiar / enviar por correo. Si aún está pending, license=null.
+    try {
+      const { data: license } = await this.supabase
+        .from('licenses')
+        .select('*')
+        .eq('payment_id', paymentId)
+        .maybeSingle();
+      return { ...data, license: license ?? null };
+    } catch {
+      return data;
+    }
   }
 
   async findAll(page = 1, limit = 20) {
@@ -157,7 +171,7 @@ export class PaymentsService {
     return { data, total: count, page, limit };
   }
 
-  // Placeholder: Webhook/callback for payment confirmation
+  // Webhook/callback for payment confirmation: activa + emite licencia POS.
   async confirmPayment(paymentId: string) {
     const { data: payment, error: fetchError } = await this.supabase
       .from('payments')
@@ -167,6 +181,32 @@ export class PaymentsService {
 
     if (fetchError || !payment)
       throw new NotFoundException('Payment not found');
+
+    // Idempotencia: si ya hay licencia, el webhook se reintentó. Retornar igual.
+    try {
+      const { data: existing } = await this.supabase
+        .from('licenses')
+        .select('*')
+        .eq('payment_id', paymentId)
+        .maybeSingle();
+      if (existing) {
+        return {
+          status: 'completed',
+          payment_id: paymentId,
+          license_key: (existing as any).license_key,
+          license: existing,
+          reused: true,
+        };
+      }
+    } catch {
+      // Si la tabla aún no existe (migración pendiente), seguir sin licencia.
+    }
+
+    const { data: plan } = await this.supabase
+      .from('plans')
+      .select('*')
+      .eq('id', (payment as any).plan_id)
+      .maybeSingle();
 
     // Update payment status
     await this.supabase
@@ -189,6 +229,17 @@ export class PaymentsService {
       details: { amount: payment.amount, currency: payment.currency },
     });
 
-    return { status: 'completed', payment_id: paymentId };
+    // Emitir licencia POS (best-effort: el pago ya quedó completed aunque falle).
+    try {
+      const license = await this.licenses.issueForPayment(payment, plan);
+      return {
+        status: 'completed',
+        payment_id: paymentId,
+        license_key: (license as any)?.license_key ?? null,
+        license,
+      };
+    } catch (e) {
+      return { status: 'completed', payment_id: paymentId, license_key: null, licenseError: 'license-pending' };
+    }
   }
 }

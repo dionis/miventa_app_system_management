@@ -40,13 +40,13 @@ export default function Users() {
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-fadeInUp overflow-x-hidden">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold mb-1 leading-tight" style={{ color: 'var(--color-text-primary)' }}>{t('admin.users.title')}</h1>
+    <div className="page animate-fadeInUp overflow-x-hidden">
+      <div className="page-header">
+        <h1 className="text-2xl md:text-3xl font-extrabold leading-tight" style={{ color: 'var(--color-text-primary)' }}>{t('admin.users.title')}</h1>
         <p className="text-sm md:text-base" style={{ color: 'var(--color-text-secondary)' }}>{t('admin.users.subtitle')}</p>
       </div>
 
-      <form onSubmit={(e) => e.preventDefault()} className="flex flex-col sm:flex-row gap-3" role="search">
+      <form onSubmit={(e) => e.preventDefault()} className="flex flex-col sm:flex-row gap-4" role="search">
         <div className="relative flex-1">
           <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--color-text-muted)' }} aria-hidden="true" />
           <input
@@ -61,11 +61,11 @@ export default function Users() {
 
       <div className="card shadow-2xl overflow-hidden rounded-[1.5rem]" style={{ padding: 0, border: '1px solid var(--color-border)' }}>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px]">
+          <table className="table-admin w-full min-w-[720px]">
             <thead>
               <tr style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)' }}>
                 {[t('admin.users.user'), t('admin.users.email'), t('admin.users.role'), t('admin.users.subscriptions'), t('admin.users.joined')].map(h => (
-                  <th key={h} scope="col" className="text-left px-6 py-4 text-xs font-black uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>{h}</th>
+                  <th key={h} scope="col" className="text-left text-xs font-black uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -76,17 +76,17 @@ export default function Users() {
                 <tr><td colSpan={5} className="text-center py-16 text-base" style={{ color: 'var(--color-text-muted)' }}>{t('admin.users.noData')}</td></tr>
               ) : users.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors duration-200">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
+                  <td>
+                    <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black shrink-0" style={{ background: 'linear-gradient(135deg, var(--color-brand-gradient-from), var(--color-brand-gradient-to))' }} aria-hidden="true">
                         {user.full_name?.charAt(0)?.toUpperCase() || '?'}
                       </div>
                       <span className="font-bold" style={{ color: 'var(--color-text-primary)' }}>{user.full_name || 'N/A'}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm" style={{ color: 'var(--color-text-secondary)' }}>{user.email}</td>
-                  <td className="px-6 py-4">
-                    <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest" style={{
+                  <td className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{user.email}</td>
+                  <td>
+                    <span className="px-3 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest" style={{
                       background: user.role === 'admin' ? 'rgba(239, 68, 68, 0.1)' : user.role === 'staff' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(16, 185, 129, 0.1)',
                       color: user.role === 'admin' ? 'var(--color-error)' : user.role === 'staff' ? 'var(--color-info)' : 'var(--color-success)',
                     }}>
@@ -94,8 +94,8 @@ export default function Users() {
                     </span>
                   </td>
                   {/* P1 fix: el backend devuelve subscriptions[], no subscription_count */}
-                  <td className="px-6 py-4 font-bold" style={{ color: 'var(--color-text-primary)' }}>{user.subscriptions?.length ?? user.subscription_count ?? 0}</td>
-                  <td className="px-6 py-4 text-sm" style={{ color: 'var(--color-text-muted)' }}>{user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}</td>
+                  <td className="font-bold" style={{ color: 'var(--color-text-primary)' }}>{user.subscriptions?.length ?? user.subscription_count ?? 0}</td>
+                  <td className="text-sm" style={{ color: 'var(--color-text-muted)' }}>{user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}</td>
                 </tr>
               ))}
             </tbody>

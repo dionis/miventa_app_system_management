@@ -8,6 +8,8 @@
 # psql local / Supabase pooled
 psql "$DATABASE_URL" -f database/schema.sql
 psql "$DATABASE_URL" -f database/migrations/001_p1_indexes_triggers.sql
+psql "$DATABASE_URL" -f database/migrations/002_p1_plan_keys_premium.sql
+psql "$DATABASE_URL" -f database/migrations/003_p1_plan_tiers.sql
 ```
 
 En Supabase Dashboard: SQL Editor -> pegar `schema.sql` -> Run -> luego `001_*.sql` -> Run.

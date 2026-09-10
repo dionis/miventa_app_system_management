@@ -11,6 +11,8 @@ import { FaqsModule } from './faqs/faqs.module';
 import { LogsModule } from './logs/logs.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { HealthModule } from './health/health.module';
+import { PlansModule } from './plans/plans.module';
+import { LicensesModule } from './licenses/licenses.module';
 import { envValidationSchema } from './config/env.validation';
 
 @Module({
@@ -30,6 +32,8 @@ import { envValidationSchema } from './config/env.validation';
     FaqsModule,
     LogsModule,
     DashboardModule,
+    PlansModule,
+    LicensesModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

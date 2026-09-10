@@ -7,23 +7,23 @@ import api from '../../lib/axios';
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-6 md:space-y-8" role="status" aria-label="Loading dashboard">
-      <div>
-        <div className="skeleton h-8 w-56 mb-2" />
+    <div className="page" role="status" aria-label="Loading dashboard">
+      <div className="page-header">
+        <div className="skeleton h-8 w-56" />
         <div className="skeleton h-5 w-80 max-w-full" />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="page-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="card" style={{ padding: '1.25rem' }}>
+          <div key={i} className="card">
             <div className="skeleton h-4 w-24 mb-3" />
             <div className="skeleton h-8 w-32" />
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+      <div className="page-grid grid-cols-1 lg:grid-cols-2">
         {[0, 1].map((i) => (
-          <div key={i} className="card" style={{ padding: '1.25rem' }}>
-            <div className="skeleton h-5 w-40 mb-4" />
+          <div key={i} className="card card-lg">
+            <div className="skeleton h-5 w-40 mb-5" />
             <div className="skeleton h-[280px] w-full" />
           </div>
         ))}
@@ -88,14 +88,14 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6 md:space-y-8 overflow-x-hidden">
-      <div className="animate-fadeInUp">
-        <h1 className="text-2xl md:text-3xl font-extrabold mb-1 leading-tight" style={{ color: 'var(--color-text-primary)' }}>{t('admin.dashboard.title')}</h1>
+    <div className="page overflow-x-hidden">
+      <div className="page-header animate-fadeInUp">
+        <h1 className="text-2xl md:text-3xl font-extrabold leading-tight" style={{ color: 'var(--color-text-primary)' }}>{t('admin.dashboard.title')}</h1>
         <p className="text-sm md:text-base" style={{ color: 'var(--color-text-secondary)' }}>{t('admin.dashboard.subtitle')}</p>
       </div>
 
       {/* KPIs: 1 col mobile -> 2 sm -> 4 lg. Sin trends falsos hasta que el backend los provea. */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="page-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <StatsCard title={t('admin.dashboard.totalSales')} value={`$${Number(stats.totalSales || 0).toLocaleString()}`} icon={DollarSign} color="#6366f1" />
         <StatsCard title={t('admin.dashboard.activeSubscriptions')} value={stats.activeSubscriptions} icon={CreditCard} color="#10b981" />
         <StatsCard title={t('admin.dashboard.totalUsers')} value={stats.totalUsers} icon={Users} color="#3b82f6" />
@@ -103,9 +103,9 @@ export default function Dashboard() {
       </div>
 
       {/* Charts: altura adaptativa, touch-friendly, sin overflow horizontal */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-        <div className="card shadow-xl min-w-0" style={{ padding: '1.25rem' }}>
-          <h3 className="text-base md:text-lg font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>{t('admin.dashboard.revenueOverview')}</h3>
+      <div className="page-grid grid-cols-1 lg:grid-cols-2">
+        <div className="card card-lg shadow-xl min-w-0">
+          <h3 className="text-base md:text-lg font-bold mb-5" style={{ color: 'var(--color-text-primary)' }}>{t('admin.dashboard.revenueOverview')}</h3>
           <div className="h-[280px] md:h-[340px] w-full" role="img" aria-label={t('admin.dashboard.revenueOverview')}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={stats.monthlySales} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
@@ -124,8 +124,8 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="card shadow-xl min-w-0" style={{ padding: '1.25rem' }}>
-          <h3 className="text-base md:text-lg font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>{t('admin.dashboard.transactions')}</h3>
+        <div className="card card-lg shadow-xl min-w-0">
+          <h3 className="text-base md:text-lg font-bold mb-5" style={{ color: 'var(--color-text-primary)' }}>{t('admin.dashboard.transactions')}</h3>
           <div className="h-[280px] md:h-[340px] w-full" role="img" aria-label={t('admin.dashboard.transactions')}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.monthlySales} margin={{ top: 8, right: 8, bottom: 0, left: -16 }} barCategoryGap="28%">
@@ -141,8 +141,8 @@ export default function Dashboard() {
       </div>
 
       {/* Secundarios */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-        <div className="card flex items-center gap-4 shadow-lg min-w-0" style={{ padding: '1.25rem' }}>
+      <div className="page-grid grid-cols-1 sm:grid-cols-3">
+        <div className="card flex items-center gap-5 shadow-lg min-w-0">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'rgba(245, 158, 11, 0.1)', color: 'var(--color-warning)' }} aria-hidden="true">
             <Clock size={24} />
           </div>
@@ -151,7 +151,7 @@ export default function Dashboard() {
             <p className="text-sm font-bold truncate" style={{ color: 'var(--color-text-muted)' }}>{t('admin.dashboard.pendingPayments')}</p>
           </div>
         </div>
-        <div className="card flex items-center gap-4 shadow-lg min-w-0" style={{ padding: '1.25rem' }}>
+        <div className="card flex items-center gap-5 shadow-lg min-w-0">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--color-info)' }} aria-hidden="true">
             <Mail size={24} />
           </div>
@@ -160,7 +160,7 @@ export default function Dashboard() {
             <p className="text-sm font-bold truncate" style={{ color: 'var(--color-text-muted)' }}>{t('admin.dashboard.unreadLeads')}</p>
           </div>
         </div>
-        <div className="card flex items-center gap-4 shadow-lg min-w-0" style={{ padding: '1.25rem' }}>
+        <div className="card flex items-center gap-5 shadow-lg min-w-0">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)' }} aria-hidden="true">
             <TrendingUp size={24} />
           </div>

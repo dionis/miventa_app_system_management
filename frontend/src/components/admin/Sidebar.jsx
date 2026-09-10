@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import {
-  LayoutDashboard, Users, UserPlus, HelpCircle,
+  LayoutDashboard, Users, UserPlus, HelpCircle, CreditCard,
   FileText, LogOut, ChevronLeft, ChevronRight, X
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -16,6 +16,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
 
   const menuItems = [
     { path: '/admin/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard') },
+    { path: '/admin/plans', icon: CreditCard, label: t('sidebar.plans') },
     { path: '/admin/referrals', icon: UserPlus, label: t('sidebar.referrals') },
     { path: '/admin/users', icon: Users, label: t('sidebar.users') },
     { path: '/admin/faqs', icon: HelpCircle, label: t('sidebar.faqs') },

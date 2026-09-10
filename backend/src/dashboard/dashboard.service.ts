@@ -109,6 +109,8 @@ export class DashboardService {
       .from('plans')
       .select('*')
       .eq('is_active', true)
+      .order('tier', { ascending: true })
+      .order('is_enterprise', { ascending: true })
       .order('duration_months', { ascending: true });
 
     if (error) throw error;

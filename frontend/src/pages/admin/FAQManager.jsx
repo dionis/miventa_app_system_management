@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Plus, Edit2, Trash2, X, Eye, EyeOff, GripVertical } from 'lucide-react';
 import api from '../../lib/axios';
 import { useToast } from '../../context/ToastContext';
+import ConfirmModal from '../../components/ConfirmModal';
 
 export default function FAQManager() {
   const { t } = useTranslation();
@@ -11,6 +12,7 @@ export default function FAQManager() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingFaq, setEditingFaq] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [form, setForm] = useState({ question: '', answer: '', sort_order: 0, is_published: true });
 
   const fetchFaqs = useCallback(async () => {
@@ -43,47 +45,49 @@ export default function FAQManager() {
     try {
       if (editingFaq) {
         await api.patch(`/faqs/${editingFaq.id}`, form);
-        addToast('FAQ updated', 'success');
+        addToast(t('admin.faqs.updated'), 'success');
       } else {
         await api.post('/faqs', form);
-        addToast('FAQ created', 'success');
+        addToast(t('admin.faqs.created'), 'success');
       }
       setShowModal(false);
       fetchFaqs();
     } catch (err) {
-      addToast(err.response?.data?.message || 'Error saving FAQ', 'error');
+      addToast(err.response?.data?.message || t('admin.faqs.saveError'), 'error');
     }
   };
 
-  const handleDelete = async (id) => {
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await api.delete(`/faqs/${id}`);
-      addToast('FAQ deleted', 'success');
+      await api.delete(`/faqs/${deleteTarget.id}`);
+      addToast(t('admin.faqs.deleted'), 'success');
+      setDeleteTarget(null);
       fetchFaqs();
     } catch {
-      addToast('Error deleting FAQ', 'error');
+      addToast(t('admin.faqs.deleteError'), 'error');
     }
   };
 
   const togglePublished = async (faq) => {
     try {
       await api.patch(`/faqs/${faq.id}`, { is_published: !faq.is_published });
-      addToast(faq.is_published ? 'FAQ set to draft' : 'FAQ published', 'success');
+      addToast(faq.is_published ? t('admin.faqs.draftMsg') : t('admin.faqs.publishedMsg'), 'success');
       fetchFaqs();
     } catch {
-      addToast('Error updating FAQ', 'error');
+      addToast(t('admin.faqs.updateError'), 'error');
     }
   };
 
   return (
-    <div className="space-y-10 animate-fadeInUp">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-4xl md:text-5xl font-black mb-2 leading-tight" style={{ color: 'var(--color-text-primary)' }}>{t('admin.faqs.title')}</h1>
-          <p className="text-lg md:text-xl" style={{ color: 'var(--color-text-secondary)' }}>{t('admin.faqs.subtitle')}</p>
+    <div className="page animate-fadeInUp overflow-x-hidden">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="page-header !mb-0">
+          <h1 className="text-2xl md:text-3xl font-extrabold leading-tight" style={{ color: 'var(--color-text-primary)' }}>{t('admin.faqs.title')}</h1>
+          <p className="text-sm md:text-base" style={{ color: 'var(--color-text-secondary)' }}>{t('admin.faqs.subtitle')}</p>
         </div>
-        <button onClick={openCreate} className="btn-primary py-4 px-8 text-lg md:text-xl rounded-2xl shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">
-          <Plus size={22} /> {t('admin.faqs.addNew')}
+        <button onClick={openCreate} className="btn-primary py-3 px-6 text-base rounded-2xl shadow-xl active:scale-[0.98] min-h-[48px] w-full md:w-auto justify-center">
+          <Plus size={20} /> {t('admin.faqs.addNew')}
         </button>
       </div>
 
@@ -103,11 +107,11 @@ export default function FAQManager() {
                     <p className="text-base leading-relaxed whitespace-pre-wrap" style={{ color: 'var(--color-text-secondary)' }}>{faq.answer}</p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <button onClick={() => togglePublished(faq)} className="p-3 rounded-xl transition-all hover:scale-110 shadow-sm" style={{ background: 'var(--color-bg-secondary)', color: faq.is_published ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
+                    <button onClick={() => togglePublished(faq)} className="p-3 rounded-xl transition-all active:scale-95 shadow-sm min-w-[44px] min-h-[44px] flex items-center justify-center" style={{ background: 'var(--color-bg-secondary)', color: faq.is_published ? 'var(--color-success)' : 'var(--color-text-muted)' }} aria-label={faq.is_published ? t('admin.faqs.draft') : t('admin.faqs.published')}>
                       {faq.is_published ? <Eye size={20} /> : <EyeOff size={20} />}
                     </button>
-                    <button onClick={() => openEdit(faq)} className="p-3 rounded-xl transition-all hover:scale-110 shadow-sm" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-info)' }}><Edit2 size={20} /></button>
-                    <button onClick={() => handleDelete(faq.id)} className="p-3 rounded-xl transition-all hover:scale-110 shadow-sm" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-error)' }}><Trash2 size={20} /></button>
+                    <button onClick={() => openEdit(faq)} className="p-3 rounded-xl transition-all active:scale-95 shadow-sm min-w-[44px] min-h-[44px] flex items-center justify-center" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-info)' }} aria-label={`${t('admin.faqs.editTitle')} FAQ`}><Edit2 size={20} /></button>
+                    <button onClick={() => setDeleteTarget(faq)} className="p-3 rounded-xl transition-all active:scale-95 shadow-sm min-w-[44px] min-h-[44px] flex items-center justify-center" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-error)' }} aria-label={`${t('common.delete')} FAQ`}><Trash2 size={20} /></button>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 mt-6">
@@ -126,9 +130,9 @@ export default function FAQManager() {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
-          <div className="w-full max-w-lg rounded-2xl p-8 relative" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
-            <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 p-2 rounded-lg" style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)' }}><X size={18} /></button>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }} role="dialog" aria-modal="true" aria-label={editingFaq ? t('admin.faqs.editTitle') : t('admin.faqs.addTitle')}>
+          <div className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-6 relative max-h-[92dvh] overflow-y-auto" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+            <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 p-3 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center" style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)' }} aria-label={t('common.close')}><X size={18} /></button>
             <h3 className="text-xl font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>{editingFaq ? t('admin.faqs.editTitle') : t('admin.faqs.addTitle')} FAQ</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -151,11 +155,22 @@ export default function FAQManager() {
                   </label>
                 </div>
               </div>
-              <button type="submit" className="btn-primary w-full justify-center">{editingFaq ? t('admin.faqs.update') : t('admin.faqs.create')} FAQ</button>
+              <button type="submit" className="btn-primary w-full justify-center min-h-[52px]">{editingFaq ? t('admin.faqs.update') : t('admin.faqs.create')} FAQ</button>
             </form>
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        title={t('admin.faqs.title')}
+        message={t('admin.faqs.deleteConfirm')}
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
+        variant="danger"
+      />
     </div>
   );
 }

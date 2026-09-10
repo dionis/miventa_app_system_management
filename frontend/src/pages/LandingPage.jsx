@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Hero from '../components/landing/Hero';
 import Features from '../components/landing/Features';
@@ -21,8 +21,9 @@ const LanguageSwitcher = () => {
     return (
         <button
             onClick={toggleLanguage}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-300 hover:bg-white/10 text-sm font-bold"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-300 hover:bg-white/10 text-sm font-bold min-h-[44px]"
             style={{ color: 'var(--color-text-primary)' }}
+            aria-label="Change language"
         >
             <Globe size={18} />
             <span className="uppercase">{i18n.language}</span>
@@ -33,6 +34,37 @@ const LanguageSwitcher = () => {
 export default function LandingPage() {
     const { t } = useTranslation();
     const [selectedPlan, setSelectedPlan] = useState(null);
+
+    // Restaurar el plan pendiente tras volver de /login (cambio premium <-> normal)
+    useEffect(() => {
+        try {
+            const raw = sessionStorage.getItem('pending_plan');
+            if (raw) {
+                sessionStorage.removeItem('pending_plan');
+                setSelectedPlan(JSON.parse(raw));
+            }
+        } catch {
+            // ignorar plan corrupto
+        }
+    }, []);
+
+    const handleSelectPlan = (plan) => {
+        try {
+            sessionStorage.setItem('pending_plan', JSON.stringify(plan));
+        } catch {
+            // ignorar
+        }
+        setSelectedPlan(plan);
+    };
+
+    const handleCloseModal = () => {
+        try {
+            sessionStorage.removeItem('pending_plan');
+        } catch {
+            // ignorar
+        }
+        setSelectedPlan(null);
+    };
 
     const navItems = [
         { key: 'features', href: '#features', label: t('nav.features') },
@@ -80,14 +112,14 @@ export default function LandingPage() {
             <div className="pt-20">
                 <Hero />
                 <Features />
-                <Pricing onSelectPlan={setSelectedPlan} />
+                <Pricing onSelectPlan={handleSelectPlan} />
                 <ContactForm />
                 <Footer />
             </div>
 
             {/* Payment Modal */}
             {selectedPlan && (
-                <PaymentModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />
+                <PaymentModal plan={selectedPlan} onClose={handleCloseModal} />
             )}
         </div>
     );

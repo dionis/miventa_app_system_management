@@ -73,15 +73,15 @@ export default function Referrals() {
     try {
       if (editingReferrer) {
         await api.patch(`/referrals/${editingReferrer.id}`, form);
-        addToast(t('admin.referrals.update') + ' ' + t('admin.referrals.title'), 'success');
+        addToast(t('admin.referrals.updated'), 'success');
       } else {
         await api.post('/referrals', form);
-        addToast(t('admin.referrals.title') + ' ' + t('admin.referrals.create') + 'd', 'success');
+        addToast(t('admin.referrals.created'), 'success');
       }
       setShowModal(false);
       fetchReferrers(page, debouncedSearch);
     } catch {
-      addToast('Error saving referrer', 'error');
+      addToast(t('admin.referrals.saveError'), 'error');
     }
   };
 
@@ -89,11 +89,11 @@ export default function Referrals() {
     if (!deleteTarget) return;
     try {
       await api.delete(`/referrals/${deleteTarget.id}`);
-      addToast('Referrer deleted', 'success');
+      addToast(t('admin.referrals.deleted'), 'success');
       setDeleteTarget(null);
       fetchReferrers(page, debouncedSearch);
     } catch {
-      addToast('Error deleting referrer', 'error');
+      addToast(t('admin.referrals.deleteError'), 'error');
     }
   };
 
@@ -117,10 +117,10 @@ export default function Referrals() {
   const err = (m) => (m ? <p className="text-sm mt-1" style={{ color: 'var(--color-error)' }}>{m}</p> : null);
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-fadeInUp overflow-x-hidden">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold mb-1 leading-tight" style={{ color: 'var(--color-text-primary)' }}>{t('admin.referrals.title')}</h1>
+    <div className="page animate-fadeInUp overflow-x-hidden">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="page-header !mb-0">
+          <h1 className="text-2xl md:text-3xl font-extrabold leading-tight" style={{ color: 'var(--color-text-primary)' }}>{t('admin.referrals.title')}</h1>
           <p className="text-sm md:text-base" style={{ color: 'var(--color-text-secondary)' }}>{t('admin.referrals.subtitle')}</p>
         </div>
         <button onClick={openCreate} className="btn-primary py-3 px-6 text-base rounded-2xl shadow-xl active:scale-[0.98] min-h-[48px] w-full md:w-auto justify-center">
@@ -128,7 +128,7 @@ export default function Referrals() {
         </button>
       </div>
 
-      <form onSubmit={(e) => e.preventDefault()} className="flex flex-col sm:flex-row gap-3" role="search">
+      <form onSubmit={(e) => e.preventDefault()} className="flex flex-col sm:flex-row gap-4" role="search">
         <div className="relative flex-1">
           <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--color-text-muted)' }} aria-hidden="true" />
           <input
@@ -143,11 +143,11 @@ export default function Referrals() {
 
       <div className="card shadow-2xl overflow-hidden rounded-[1.5rem]" style={{ padding: 0, border: '1px solid var(--color-border)' }}>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[820px]">
+          <table className="table-admin w-full min-w-[820px]">
             <thead>
               <tr style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-border)' }}>
                 {[t('admin.referrals.name'), t('admin.referrals.email'), t('admin.referrals.referralCode'), t('admin.referrals.referrals'), t('admin.referrals.earnings'), t('admin.referrals.status'), t('admin.referrals.actions')].map(h => (
-                  <th key={h} scope="col" className="text-left px-6 py-4 text-xs font-black uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>{h}</th>
+                  <th key={h} scope="col" className="text-left text-xs font-black uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -158,26 +158,26 @@ export default function Referrals() {
                 <tr><td colSpan={7} className="text-center py-16 text-base" style={{ color: 'var(--color-text-muted)' }}>{t('admin.referrals.noData')}</td></tr>
               ) : referrers.map((ref) => (
                 <tr key={ref.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors duration-200">
-                  <td className="px-6 py-4 font-bold" style={{ color: 'var(--color-text-primary)' }}>{ref.full_name}</td>
-                  <td className="px-6 py-4 text-sm" style={{ color: 'var(--color-text-secondary)' }}>{ref.email}</td>
-                  <td className="px-6 py-4">
+                  <td className="font-bold" style={{ color: 'var(--color-text-primary)' }}>{ref.full_name}</td>
+                  <td className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{ref.email}</td>
+                  <td>
                     <button onClick={() => copyCode(ref.referral_code)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-mono font-black transition-all active:scale-95 shadow-sm min-h-[44px]" style={{ background: 'var(--color-brand-light)', color: 'var(--color-brand)' }} aria-label={`Copy ${ref.referral_code}`}>
                       {ref.referral_code}
                       {copiedCode === ref.referral_code ? <CheckCircle size={15} /> : <Copy size={15} />}
                     </button>
                   </td>
-                  <td className="px-6 py-4 font-bold" style={{ color: 'var(--color-text-primary)' }}>{ref.total_referrals}</td>
-                  <td className="px-6 py-4 font-black" style={{ color: 'var(--color-success)' }}>${ref.total_earnings}</td>
-                  <td className="px-6 py-4">
-                    <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest" style={{
+                  <td className="font-bold" style={{ color: 'var(--color-text-primary)' }}>{ref.total_referrals}</td>
+                  <td className="font-black" style={{ color: 'var(--color-success)' }}>${ref.total_earnings}</td>
+                  <td>
+                    <span className="px-3 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest" style={{
                       background: ref.is_active ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                       color: ref.is_active ? 'var(--color-success)' : 'var(--color-error)',
                     }}>
                       {ref.is_active ? t('admin.referrals.active') : t('admin.referrals.inactive')}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
+                  <td>
+                    <div className="flex items-center gap-3">
                       <button onClick={() => openEdit(ref)} className="p-3 rounded-xl transition-all active:scale-95 shadow-sm min-w-[44px] min-h-[44px] flex items-center justify-center" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-info)' }} aria-label={`Edit ${ref.full_name}`}><Edit2 size={17} /></button>
                       <button onClick={() => setDeleteTarget(ref)} className="p-3 rounded-xl transition-all active:scale-95 shadow-sm min-w-[44px] min-h-[44px] flex items-center justify-center" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-error)' }} aria-label={`Delete ${ref.full_name}`}><Trash2 size={17} /></button>
                     </div>
@@ -238,10 +238,10 @@ export default function Referrals() {
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={confirmDelete}
-        title="Delete referrer"
-        message={deleteTarget ? `Delete ${deleteTarget.full_name} (${deleteTarget.email})? This cannot be undone.` : ''}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        title={t('admin.referrals.title')}
+        message={t('admin.referrals.deleteConfirm')}
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
         variant="danger"
       />
     </div>

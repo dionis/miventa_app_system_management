@@ -50,6 +50,29 @@
 
   --radius: 0.75rem;
   --radius-lg: 1rem;
+
+  /* ========== Spacing scale (MASTER.md) ========== */
+  --space-xs: 0.25rem;   /* 4px  - tight gaps */
+  --space-sm: 0.5rem;    /* 8px  - icon gaps */
+  --space-md: 1rem;      /* 16px - standard padding */
+  --space-lg: 1.5rem;    /* 24px - section padding / card padding */
+  --space-xl: 2rem;      /* 32px - large gaps */
+  --space-2xl: 3rem;     /* 48px - section margins */
+  --space-3xl: 4rem;     /* 64px - hero padding */
+
+  /* Layout rhythm: page stack + grids + content */
+  --layout-stack: 2rem;          /* vertical rhythm between sections */
+  --layout-grid-gap: 1.5rem;     /* cards/grids */
+  --layout-content: 1.5rem;      /* page padding mobile */
+}
+
+/* Desktop: aire extra */
+@media (min-width: 768px) {
+  :root {
+    --layout-stack: 2.5rem;
+    --layout-grid-gap: 1.5rem;
+    --layout-content: 2.5rem;
+  }
 }
 
 /* Dark Mode */
@@ -81,13 +104,7 @@
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
 }
 
-/* ========== Base Styles ========== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
+/* ========== Base Styles (Tailwind preflight ya resetea; no usar * reset) ========== */
 html {
   scroll-behavior: smooth;
 }
@@ -176,14 +193,60 @@ body {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
+  padding: var(--space-lg);
   box-shadow: var(--shadow-sm);
-  transition: all 0.2s ease-in-out;
+  transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
 }
 
 .card:hover {
   box-shadow: var(--shadow-lg);
-  border-color: var(--color-brand);
+  border-color: var(--color-border-hover);
+}
+
+/* Card amplia para charts / paneles */
+.card-lg {
+  padding: var(--space-lg);
+}
+
+@media (min-width: 768px) {
+  .card-lg {
+    padding: var(--space-xl);
+  }
+}
+
+/* ========== Layout rhythm helpers ========== */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--layout-stack);
+}
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.page-grid {
+  display: grid;
+  gap: var(--layout-grid-gap);
+}
+
+/* Tablas admin: celdas con aire */
+.table-admin th {
+  padding: var(--space-md) var(--space-lg);
+}
+
+.table-admin td {
+  padding: var(--space-lg) var(--space-lg);
+}
+
+@media (max-width: 768px) {
+  .table-admin th,
+  .table-admin td {
+    padding: var(--space-md) var(--space-md);
+  }
 }
 
 /* ========== Animations ========== */

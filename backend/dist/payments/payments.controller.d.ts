@@ -22,6 +22,24 @@ export declare class PaymentsController {
     confirmPayment(id: string): Promise<{
         status: string;
         payment_id: string;
+        license_key: any;
+        license: any;
+        reused: boolean;
+        licenseError?: undefined;
+    } | {
+        status: string;
+        payment_id: string;
+        license_key: any;
+        license: any;
+        reused?: undefined;
+        licenseError?: undefined;
+    } | {
+        status: string;
+        payment_id: string;
+        license_key: null;
+        licenseError: string;
+        license?: undefined;
+        reused?: undefined;
     }>;
     webhookConfirm(body: {
         payment_id?: string;
@@ -29,6 +47,24 @@ export declare class PaymentsController {
     }, secret?: string): Promise<{
         status: string;
         payment_id: string;
+        license_key: any;
+        license: any;
+        reused: boolean;
+        licenseError?: undefined;
+    } | {
+        status: string;
+        payment_id: string;
+        license_key: any;
+        license: any;
+        reused?: undefined;
+        licenseError?: undefined;
+    } | {
+        status: string;
+        payment_id: string;
+        license_key: null;
+        licenseError: string;
+        license?: undefined;
+        reused?: undefined;
     }> | {
         ignored: boolean;
     };

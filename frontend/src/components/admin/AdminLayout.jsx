@@ -7,6 +7,7 @@ import { Menu, ChevronRight } from 'lucide-react';
 
 const CRUMBS = {
   '/admin/dashboard': 'sidebar.dashboard',
+  '/admin/plans': 'sidebar.plans',
   '/admin/referrals': 'sidebar.referrals',
   '/admin/users': 'sidebar.users',
   '/admin/faqs': 'sidebar.faqs',
@@ -57,8 +58,8 @@ export default function AdminLayout() {
             </div>
             <ThemeToggle className="min-w-[44px] min-h-[44px] flex items-center justify-center" />
           </div>
-          {/* Content: padding compacto en mobile, amplio en desktop */}
-          <div className="p-4 md:p-8 lg:p-10">
+          {/* Content: ritmo de layout por tokens */}
+          <div className="p-6 md:p-10">
             <Outlet />
           </div>
         </div>
