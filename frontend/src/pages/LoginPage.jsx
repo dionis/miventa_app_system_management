@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,10 +13,19 @@ const schema = z.object({
   password: z.string().min(8, 'Min 8 characters').max(128),
 });
 
+function hasPendingPlan() {
+  try {
+    return !!sessionStorage.getItem('pending_plan');
+  } catch {
+    return false;
+  }
+}
+
 export default function LoginPage() {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
-  const { signIn } = useAuth();
+  const { signIn, user, loading } = useAuth();
   const navigate = useNavigate();
   const {
     register,
@@ -28,18 +38,18 @@ export default function LoginPage() {
     try {
       await signIn(values.email.trim().toLowerCase(), values.password);
       // Si venía de Pricing (cambio de plan), volver a la landing:
-      // el modal se reabre solo desde sessionStorage.pending_plan
-      let pending = null;
-      try {
-        pending = sessionStorage.getItem('pending_plan');
-      } catch {
-        pending = null;
-      }
-      navigate(pending ? '/' : '/admin/dashboard');
+      // el modal se reabre solo desde sessionStorage.pending_plan.
+      // replace:true para que "atrás" no devuelva al formulario.
+      navigate(hasPendingPlan() ? '/' : '/admin/dashboard', { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Invalid credentials');
     }
   };
+
+  // Ya autenticado: no mostrar el formulario (evita el bucle login <-> login)
+  if (!loading && user) {
+    return <Navigate to={hasPendingPlan() ? '/' : '/admin/dashboard'} replace />;
+  }
 
   return (
     <div className="min-h-[100dvh] flex items-center justify-center p-4 relative" style={{ background: 'var(--color-bg-primary)', paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
@@ -54,7 +64,7 @@ export default function LoginPage() {
             <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>
               Mi<span className="gradient-text">Venta</span>
             </h1>
-            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Sign in to the BackOffice</p>
+            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('login.subtitle')}</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
@@ -106,8 +116,16 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="text-center mt-6">
-            <a href="/" className="text-sm transition-colors duration-300 inline-block py-2 px-4" style={{ color: 'var(--color-text-muted)' }}>← Back to homepage</a>
+          <div className="text-center mt-6 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+            {t('register.noAccount')}{' '}
+            <Link to="/register" className="font-bold inline-block py-2" style={{ color: 'var(--color-brand)' }}>
+              {t('register.submit')}
+            </Link>
+          </div>
+
+          <div className="text-center mt-2">
+            {/* Link cliente (sin recarga): <a href> remontaba la app y perdía estado */}
+            <Link to="/" className="text-sm transition-colors duration-300 inline-block py-2 px-4 min-h-[44px]" style={{ color: 'var(--color-text-muted)' }}>← {t('login.backToHome')}</Link>
           </div>
         </div>
       </div>

@@ -19,6 +19,16 @@ export class LoginDto {
 }
 
 export class RegisterDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(60)
+  first_name: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(60)
+  last_name: string;
+
   @IsEmail()
   @MaxLength(255)
   email: string;
@@ -35,10 +45,20 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   @MaxLength(120)
-  full_name?: string;
+  company?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(40)
   phone?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  secondary_phone?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(10)
+  lang?: string;
 }

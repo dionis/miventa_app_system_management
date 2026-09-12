@@ -47,21 +47,31 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const users_service_1 = require("../users/users.service");
 const jwt_1 = require("@nestjs/jwt");
+const supabase_1 = require("../config/supabase");
+const mail_service_1 = require("../mail/mail.service");
 const bcrypt = __importStar(require("bcrypt"));
+const crypto = __importStar(require("crypto"));
+function newVerificationToken() {
+    const token = crypto.randomBytes(32).toString('hex');
+    const hash = crypto.createHash('sha256').update(token).digest('hex');
+    return { token, hash };
+}
 let AuthService = class AuthService {
     usersService;
     jwtService;
     config;
-    constructor(usersService, jwtService, config) {
+    mail;
+    constructor(usersService, jwtService, config, mail) {
         this.usersService = usersService;
         this.jwtService = jwtService;
         this.config = config;
+        this.mail = mail;
     }
     async validateUser(email, pass) {
         const normalized = email?.trim().toLowerCase();
         const user = await this.usersService.findByEmail(normalized);
         if (user && (await bcrypt.compare(pass, user.password_hash))) {
-            const { password_hash, ...result } = user;
+            const { password_hash, email_verification_token, ...result } = user;
             return result;
         }
         return null;
@@ -111,11 +121,96 @@ let AuthService = class AuthService {
     }
     async register(userData) {
         const { role: _ignored, ...safe } = userData;
-        const user = await this.usersService.create({
-            ...safe,
-            email: safe.email?.trim().toLowerCase(),
+        const fullName = [safe.first_name?.trim(), safe.last_name?.trim()]
+            .filter(Boolean)
+            .join(' ') || safe.full_name?.trim() || '';
+        const { token, hash } = newVerificationToken();
+        const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+        let user;
+        try {
+            user = await this.usersService.create({
+                email: safe.email?.trim().toLowerCase(),
+                password: safe.password,
+                full_name: fullName,
+                company: safe.company?.trim() || null,
+                phone: safe.phone?.trim() || null,
+                secondary_phone: safe.secondary_phone?.trim() || null,
+                email_verified: false,
+                email_verification_token: hash,
+                email_verification_expires: expires,
+            });
+        }
+        catch (err) {
+            if (err?.code === '23505')
+                throw new common_1.ConflictException('Email already exists');
+            throw err;
+        }
+        const { sent } = await this.mail.sendVerificationEmail(user.email, fullName, token, safe.lang || 'es');
+        const session = await this.login(user);
+        return { ...session, email_sent: sent };
+    }
+    async verifyEmail(token) {
+        if (!token)
+            throw new common_1.BadRequestException('Missing token');
+        const hash = crypto.createHash('sha256').update(token).digest('hex');
+        const sb = (0, supabase_1.getSupabaseAdmin)();
+        const { data, error } = await sb
+            .from('profiles')
+            .select('id, email_verified, email_verification_expires')
+            .eq('email_verification_token', hash)
+            .single();
+        if (error || !data)
+            throw new common_1.BadRequestException('Invalid token');
+        if (data.email_verified)
+            return { verified: true, already: true };
+        if (data.email_verification_expires &&
+            new Date(data.email_verification_expires).getTime() < Date.now()) {
+            throw new common_1.BadRequestException('Token expired. Request a new email.');
+        }
+        const { error: upErr } = await sb
+            .from('profiles')
+            .update({
+            email_verified: true,
+            email_verification_token: null,
+            email_verification_expires: null,
+            updated_at: new Date().toISOString(),
+        })
+            .eq('id', data.id);
+        if (upErr)
+            throw upErr;
+        await sb.from('event_logs').insert({
+            actor_id: data.id,
+            action: 'email_verified',
+            entity_type: 'profile',
+            entity_id: data.id,
         });
-        return this.login(user);
+        return { verified: true };
+    }
+    async resendVerification(email, lang = 'es') {
+        const normalized = email?.trim().toLowerCase();
+        if (!normalized)
+            throw new common_1.BadRequestException('Email required');
+        const sb = (0, supabase_1.getSupabaseAdmin)();
+        const { data, error } = await sb
+            .from('profiles')
+            .select('id, full_name, email_verified')
+            .eq('email', normalized)
+            .single();
+        if (error || !data)
+            return { sent: false };
+        if (data.email_verified)
+            return { sent: false, already: true };
+        const { token, hash } = newVerificationToken();
+        await sb
+            .from('profiles')
+            .update({
+            email_verification_token: hash,
+            email_verification_expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            updated_at: new Date().toISOString(),
+        })
+            .eq('id', data.id);
+        const { sent } = await this.mail.sendVerificationEmail(normalized, data.full_name || '', token, lang);
+        return { sent };
     }
 };
 exports.AuthService = AuthService;
@@ -123,6 +218,7 @@ exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [users_service_1.UsersService,
         jwt_1.JwtService,
-        config_1.ConfigService])
+        config_1.ConfigService,
+        mail_service_1.MailService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

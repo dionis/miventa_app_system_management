@@ -21,7 +21,9 @@ const logs_module_1 = require("./logs/logs.module");
 const dashboard_module_1 = require("./dashboard/dashboard.module");
 const health_module_1 = require("./health/health.module");
 const plans_module_1 = require("./plans/plans.module");
+const mail_module_1 = require("./mail/mail.module");
 const licenses_module_1 = require("./licenses/licenses.module");
+const notify_module_1 = require("./notify/notify.module");
 const env_validation_1 = require("./config/env.validation");
 let AppModule = class AppModule {
 };
@@ -35,6 +37,7 @@ exports.AppModule = AppModule = __decorate([
                 validationOptions: { abortEarly: false },
             }),
             throttler_1.ThrottlerModule.forRoot([{ name: 'default', ttl: 60 * 1000, limit: 120 }]),
+            mail_module_1.MailModule,
             health_module_1.HealthModule,
             auth_module_1.AuthModule,
             leads_module_1.LeadsModule,
@@ -46,6 +49,7 @@ exports.AppModule = AppModule = __decorate([
             dashboard_module_1.DashboardModule,
             plans_module_1.PlansModule,
             licenses_module_1.LicensesModule,
+            notify_module_1.NotifyModule,
         ],
         providers: [{ provide: core_1.APP_GUARD, useClass: throttler_1.ThrottlerGuard }],
     })

@@ -25,6 +25,15 @@ let ReferralsController = class ReferralsController {
     constructor(referralsService) {
         this.referralsService = referralsService;
     }
+    validate(code) {
+        return this.referralsService.validateCode(code);
+    }
+    getConfig() {
+        return this.referralsService.getConfig();
+    }
+    updateConfig(dto) {
+        return this.referralsService.updateConfig(dto);
+    }
     create(dto) {
         return this.referralsService.create(dto);
     }
@@ -44,7 +53,33 @@ let ReferralsController = class ReferralsController {
 };
 exports.ReferralsController = ReferralsController;
 __decorate([
+    (0, common_1.Get)('validate/:code'),
+    __param(0, (0, common_1.Param)('code')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ReferralsController.prototype, "validate", null);
+__decorate([
+    (0, common_1.Get)('config'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'staff'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ReferralsController.prototype, "getConfig", null);
+__decorate([
+    (0, common_1.Patch)('config'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], ReferralsController.prototype, "updateConfig", null);
+__decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'staff'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [referrer_dto_1.CreateReferrerDto]),
@@ -52,6 +87,8 @@ __decorate([
 ], ReferralsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'staff'),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
     __param(2, (0, common_1.Query)('search')),
@@ -61,6 +98,8 @@ __decorate([
 ], ReferralsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'staff'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -68,6 +107,8 @@ __decorate([
 ], ReferralsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'staff'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -76,6 +117,8 @@ __decorate([
 ], ReferralsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'staff'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -83,8 +126,6 @@ __decorate([
 ], ReferralsController.prototype, "remove", null);
 exports.ReferralsController = ReferralsController = __decorate([
     (0, common_1.Controller)('api/referrals'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('admin', 'staff'),
     __metadata("design:paramtypes", [referrals_service_1.ReferralsService])
 ], ReferralsController);
 //# sourceMappingURL=referrals.controller.js.map

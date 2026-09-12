@@ -80,6 +80,12 @@ let AuthController = class AuthController {
         res.clearCookie('refresh_token', { path: '/api/auth' });
         return { logged_out: true };
     }
+    async verifyEmail(token) {
+        return this.authService.verifyEmail(token);
+    }
+    async resendVerification(body) {
+        return this.authService.resendVerification(body?.email || '', body?.lang);
+    }
     async getProfile(req) {
         const profile = await this.usersService.findOne(req.user.id);
         return profile;
@@ -121,6 +127,22 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "logout", null);
+__decorate([
+    (0, common_1.Get)('verify-email'),
+    (0, throttler_1.Throttle)({ default: { limit: 20, ttl: 60 * 1000 } }),
+    __param(0, (0, common_1.Query)('token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "verifyEmail", null);
+__decorate([
+    (0, common_1.Post)('resend-verification'),
+    (0, throttler_1.Throttle)({ default: { limit: 3, ttl: 60 * 1000 } }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "resendVerification", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Get)('me'),

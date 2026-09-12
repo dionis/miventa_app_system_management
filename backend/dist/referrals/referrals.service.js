@@ -101,6 +101,70 @@ let ReferralsService = class ReferralsService {
         });
         return { deleted: true };
     }
+    async getConfig() {
+        const defaults = { referral_discount_percent: 10, referral_commission_percent: 10 };
+        try {
+            const { data } = await this.supabase.from('app_settings').select('key, value').in('key', [
+                'referral_discount_percent',
+                'referral_commission_percent',
+            ]);
+            const map = {};
+            for (const row of data ?? [])
+                map[row.key] = row.value;
+            return {
+                referral_discount_percent: Number(map['referral_discount_percent'] ?? defaults.referral_discount_percent),
+                referral_commission_percent: Number(map['referral_commission_percent'] ?? defaults.referral_commission_percent),
+            };
+        }
+        catch {
+            return defaults;
+        }
+    }
+    async updateConfig(dto) {
+        const out = {};
+        if (dto.referral_discount_percent !== undefined) {
+            const v = Number(dto.referral_discount_percent);
+            if (!Number.isFinite(v) || v < 0 || v > 90)
+                throw new common_1.BadRequestException('referral_discount_percent must be 0..90');
+            out['referral_discount_percent'] = v;
+        }
+        if (dto.referral_commission_percent !== undefined) {
+            const v = Number(dto.referral_commission_percent);
+            if (!Number.isFinite(v) || v < 0 || v > 100)
+                throw new common_1.BadRequestException('referral_commission_percent must be 0..100');
+            out['referral_commission_percent'] = v;
+        }
+        if (Object.keys(out).length === 0)
+            throw new common_1.BadRequestException('Nothing to update');
+        for (const [key, value] of Object.entries(out)) {
+            await this.supabase.from('app_settings').upsert({ key, value: String(value), updated_at: new Date().toISOString() }, { onConflict: 'key' });
+        }
+        await this.supabase.from('event_logs').insert({
+            action: 'referral_config_updated',
+            entity_type: 'app_settings',
+            details: out,
+        });
+        return this.getConfig();
+    }
+    async validateCode(raw) {
+        const code = String(raw ?? '').trim().toUpperCase();
+        if (!code)
+            throw new common_1.BadRequestException('referral_code required');
+        const { data, error } = await this.supabase
+            .from('referrers')
+            .select('id, full_name, referral_code, is_active')
+            .eq('referral_code', code)
+            .maybeSingle();
+        if (error || !data || !data.is_active)
+            throw new common_1.BadRequestException('Invalid referral code');
+        const cfg = await this.getConfig();
+        return {
+            valid: true,
+            referral_code: data.referral_code,
+            referrer_name: data.full_name,
+            discount_percent: cfg.referral_discount_percent,
+        };
+    }
 };
 exports.ReferralsService = ReferralsService;
 exports.ReferralsService = ReferralsService = __decorate([

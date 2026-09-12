@@ -12,7 +12,9 @@ import { LogsModule } from './logs/logs.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { HealthModule } from './health/health.module';
 import { PlansModule } from './plans/plans.module';
+import { MailModule } from './mail/mail.module';
 import { LicensesModule } from './licenses/licenses.module';
+import { NotifyModule } from './notify/notify.module';
 import { envValidationSchema } from './config/env.validation';
 
 @Module({
@@ -23,6 +25,7 @@ import { envValidationSchema } from './config/env.validation';
       validationOptions: { abortEarly: false },
     }),
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60 * 1000, limit: 120 }]),
+    MailModule,
     HealthModule,
     AuthModule,
     LeadsModule,
@@ -34,6 +37,7 @@ import { envValidationSchema } from './config/env.validation';
     DashboardModule,
     PlansModule,
     LicensesModule,
+    NotifyModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

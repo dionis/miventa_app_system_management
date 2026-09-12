@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DollarSign, Users, UserPlus, CreditCard, TrendingUp, Mail, Clock } from 'lucide-react';
+import { DollarSign, Users, UserPlus, CreditCard, TrendingUp, Mail, Clock, KeyRound, BadgeCheck, Percent, HandCoins } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import StatsCard from '../../components/admin/StatsCard';
 import api from '../../lib/axios';
@@ -167,6 +167,46 @@ export default function Dashboard() {
           <div className="min-w-0">
             <p className="text-2xl font-black truncate" style={{ color: 'var(--color-text-primary)' }}>{stats.totalReferrals}</p>
             <p className="text-sm font-bold truncate" style={{ color: 'var(--color-text-muted)' }}>{t('admin.dashboard.totalReferrals')}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Pagos y licencias: conteos exactos para auditoría */}
+      <div className="page-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="card flex items-center gap-5 shadow-lg min-w-0">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' }} aria-hidden="true">
+            <BadgeCheck size={24} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-2xl font-black truncate" style={{ color: 'var(--color-text-primary)' }}>{stats.completedPayments ?? stats.totalTransactions}</p>
+            <p className="text-sm font-bold truncate" style={{ color: 'var(--color-text-muted)' }}>{t('admin.dashboard.completedPayments')}</p>
+          </div>
+        </div>
+        <div className="card flex items-center gap-5 shadow-lg min-w-0">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)' }} aria-hidden="true">
+            <KeyRound size={24} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-2xl font-black truncate" style={{ color: 'var(--color-text-primary)' }}>{stats.licensesIssued ?? 0}</p>
+            <p className="text-sm font-bold truncate" style={{ color: 'var(--color-text-muted)' }}>{t('admin.dashboard.licensesIssued')}</p>
+          </div>
+        </div>
+        <div className="card flex items-center gap-5 shadow-lg min-w-0">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'rgba(245, 158, 11, 0.1)', color: 'var(--color-warning)' }} aria-hidden="true">
+            <Percent size={24} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-2xl font-black truncate" style={{ color: 'var(--color-text-primary)' }}>{stats.referralPayments ?? 0}</p>
+            <p className="text-sm font-bold truncate" style={{ color: 'var(--color-text-muted)' }}>{t('admin.dashboard.referralPayments')}</p>
+          </div>
+        </div>
+        <div className="card flex items-center gap-5 shadow-lg min-w-0">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--color-info)' }} aria-hidden="true">
+            <HandCoins size={24} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-2xl font-black truncate" style={{ color: 'var(--color-text-primary)' }}>${Number(stats.commissionsTotal || 0).toLocaleString()}</p>
+            <p className="text-sm font-bold truncate" style={{ color: 'var(--color-text-muted)' }}>{t('admin.dashboard.commissionsTotal')}</p>
           </div>
         </div>
       </div>

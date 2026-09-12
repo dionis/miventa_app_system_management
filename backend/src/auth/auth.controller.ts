@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
   ConflictException,
   Get,
+  Query,
   Request,
   Res,
   UseGuards,
@@ -96,6 +97,18 @@ export class AuthController {
     res.clearCookie('access_token', { path: '/' });
     res.clearCookie('refresh_token', { path: '/api/auth' });
     return { logged_out: true };
+  }
+
+  @Get('verify-email')
+  @Throttle({ default: { limit: 20, ttl: 60 * 1000 } })
+  async verifyEmail(@Query('token') token: string) {
+    return this.authService.verifyEmail(token);
+  }
+
+  @Post('resend-verification')
+  @Throttle({ default: { limit: 3, ttl: 60 * 1000 } })
+  async resendVerification(@Body() body: { email?: string; lang?: string }) {
+    return this.authService.resendVerification(body?.email || '', body?.lang);
   }
 
   @UseGuards(JwtAuthGuard)

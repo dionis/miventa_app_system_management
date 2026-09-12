@@ -31,6 +31,8 @@ export default function Referrals() {
   const [editingReferrer, setEditingReferrer] = useState(null);
   const [copiedCode, setCopiedCode] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [cfg, setCfg] = useState({ referral_discount_percent: 10, referral_commission_percent: 10 });
+  const [cfgSaving, setCfgSaving] = useState(false);
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(schema),
@@ -53,6 +55,11 @@ export default function Referrals() {
 
   useEffect(() => { setPage(1); }, [debouncedSearch]);
   useEffect(() => { fetchReferrers(page, debouncedSearch); }, [page, debouncedSearch, fetchReferrers]);
+  useEffect(() => {
+    api.get('/referrals/config').then(({ data }) => {
+      if (data) setCfg((c) => ({ ...c, ...data }));
+    }).catch(() => {});
+  }, []);
 
   const openCreate = () => {
     setEditingReferrer(null);
@@ -116,6 +123,23 @@ export default function Referrals() {
   const totalPages = Math.ceil(total / limit);
   const err = (m) => (m ? <p className="text-sm mt-1" style={{ color: 'var(--color-error)' }}>{m}</p> : null);
 
+  const saveConfig = async (e) => {
+    e?.preventDefault?.();
+    setCfgSaving(true);
+    try {
+      const { data } = await api.patch('/referrals/config', {
+        referral_discount_percent: Number(cfg.referral_discount_percent),
+        referral_commission_percent: Number(cfg.referral_commission_percent),
+      });
+      if (data) setCfg((c) => ({ ...c, ...data }));
+      addToast(t('admin.referrals.configSaved'), 'success');
+    } catch {
+      addToast(t('admin.referrals.saveError'), 'error');
+    } finally {
+      setCfgSaving(false);
+    }
+  };
+
   return (
     <div className="page animate-fadeInUp overflow-x-hidden">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
@@ -127,6 +151,30 @@ export default function Referrals() {
           <Plus size={20} /> {t('admin.referrals.addNew')}
         </button>
       </div>
+
+      <form onSubmit={saveConfig} className="card flex flex-col md:flex-row md:items-end gap-4 rounded-[1.5rem]" style={{ border: '1px solid var(--color-border)' }}>
+        <div className="flex-1">
+          <h2 className="text-base font-extrabold" style={{ color: 'var(--color-text-primary)' }}>{t('admin.referrals.configTitle')}</h2>
+          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('admin.referrals.configHint')}</p>
+        </div>
+        <label className="flex flex-col gap-1 text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>
+          {t('admin.referrals.discountPct')}
+          <input type="number" min={0} max={90} step={0.5} value={cfg.referral_discount_percent}
+            onChange={(e) => setCfg((c) => ({ ...c, referral_discount_percent: e.target.value }))}
+            className="px-4 py-3 rounded-xl outline-none min-h-[48px] w-32"
+            style={{ background: 'var(--color-bg-tertiary)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }} />
+        </label>
+        <label className="flex flex-col gap-1 text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>
+          {t('admin.referrals.commissionPct')}
+          <input type="number" min={0} max={100} step={0.5} value={cfg.referral_commission_percent}
+            onChange={(e) => setCfg((c) => ({ ...c, referral_commission_percent: e.target.value }))}
+            className="px-4 py-3 rounded-xl outline-none min-h-[48px] w-32"
+            style={{ background: 'var(--color-bg-tertiary)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }} />
+        </label>
+        <button type="submit" disabled={cfgSaving} className="btn-primary min-h-[48px] disabled:opacity-50">
+          {t('admin.referrals.saveConfig')}
+        </button>
+      </form>
 
       <form onSubmit={(e) => e.preventDefault()} className="flex flex-col sm:flex-row gap-4" role="search">
         <div className="relative flex-1">

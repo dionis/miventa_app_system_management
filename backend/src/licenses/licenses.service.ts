@@ -44,6 +44,37 @@ export class LicensesService {
     return getLicenseInfo(key);
   }
 
+  /** Diagnóstico: confirma que las migraciones 004-007 están aplicadas. */
+  async checkTables() {
+    const check = async (table: string) => {
+      try {
+        const { error } = await this.supabase.from(table).select('*', { head: true }).limit(1);
+        return { table, ok: !error, error: error?.message ?? null };
+      } catch (e: any) {
+        return { table, ok: false, error: e?.message ?? String(e) };
+      }
+    };
+    const tables = await Promise.all(
+      ['licenses', 'referral_uses', 'app_settings', 'payments', 'subscriptions', 'plans'].map(check),
+    );
+    // Rol de la clave configurada (SIN exponerla): service_role evita RLS.
+    const raw = String(process.env.SUPABASE_SERVICE_ROLE_KEY ?? '');
+    let keyRole = 'unknown';
+    if (raw.split('.').length === 3) {
+      try {
+        keyRole = JSON.parse(Buffer.from(raw.split('.')[1], 'base64').toString()).role ?? 'unknown';
+      } catch {
+        keyRole = 'undecodable-jwt';
+      }
+    } else if (raw.startsWith('sb_secret_')) {
+      keyRole = 'service_role(secret-key)';
+    } else if (raw.startsWith('sb_publishable_')) {
+      keyRole = 'anon(publishable-key)';
+    }
+    const isServiceRole = keyRole === 'service_role' || keyRole.startsWith('service_role(');
+    return { ok: tables.every((t) => t.ok), tables, keyRole, isServiceRole };
+  }
+
   /**
    * Emite (o retorna existente) la licencia de un pago confirmado.
    * Idempotente por payment_id: reintentos del webhook retornan la misma llave.
@@ -95,8 +126,14 @@ export class LicensesService {
     }
 
     // Email best-effort (no bloquea). Marca emailed_at solo si se envió.
+    // user_id puede ser null (guest solo-teléfono): se usa guest_email.
     try {
-      const email = await this.mail.resolveRecipientEmail(payment.user_id);
+      const email =
+        (payment.user_id
+          ? await this.mail.resolveRecipientEmail(payment.user_id).catch(() => null)
+          : null) ||
+        payment.guest_email ||
+        null;
       if (email) {
         const sent = await this.mail.sendLicenseEmail(email, gen.key, {
           planName: plan?.name,
@@ -114,7 +151,7 @@ export class LicensesService {
     }
 
     await this.supabase.from('event_logs').insert({
-      actor_id: payment.user_id,
+      actor_id: payment.user_id ?? null,
       action: 'license_issued',
       entity_type: 'license',
       entity_id: (data as any).id,
@@ -123,6 +160,8 @@ export class LicensesService {
         license_type: gen.licenseType,
         pos_count: gen.posCount,
         days: gen.days,
+        buyer_email: payment.guest_email ?? null,
+        buyer_phone: payment.guest_phone ?? null,
       },
     });
 
@@ -136,7 +175,7 @@ export class LicensesService {
     if (role !== 'admin' && role !== 'staff' && (license as any).user_id !== authUser?.id) {
       throw new BadRequestException('Not your license');
     }
-    const email = await this.mail.resolveRecipientEmail((license as any).user_id);
+    const email = await this.resolvePaymentEmail(paymentId, (license as any).user_id);
     if (!email) throw new BadRequestException('No email for user');
     const sent = await this.mail.sendLicenseEmail(email, (license as any).license_key, {});
     if (sent.emailed) {
@@ -146,5 +185,23 @@ export class LicensesService {
         .eq('id', (license as any).id);
     }
     return { emailed: sent.emailed, to: email, reason: sent.reason };
+  }
+
+  /** Email del perfil o, para guest, el guest_email del pago. */
+  async resolvePaymentEmail(paymentId: string, userId?: string | null): Promise<string | null> {
+    if (userId) {
+      const email = await this.mail.resolveRecipientEmail(userId);
+      if (email) return email;
+    }
+    try {
+      const { data } = await this.supabase
+        .from('payments')
+        .select('guest_email')
+        .eq('id', paymentId)
+        .maybeSingle();
+      return (data as any)?.guest_email ?? null;
+    } catch {
+      return null;
+    }
   }
 }

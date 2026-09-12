@@ -7,6 +7,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 // Pages (públicas, eager: LCP)
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 
 // Admin Pages (lazy: reduce bundle inicial ~781KB -> split por ruta, clave en mobile)
 import AdminLayout from './components/admin/AdminLayout';
@@ -34,6 +36,8 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
 
           {/* Protected Admin Routes */}
           <Route

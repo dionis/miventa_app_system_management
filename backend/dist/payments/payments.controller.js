@@ -17,7 +17,7 @@ const common_1 = require("@nestjs/common");
 const throttler_1 = require("@nestjs/throttler");
 const swagger_1 = require("@nestjs/swagger");
 const payments_service_1 = require("./payments.service");
-const create_order_dto_1 = require("./dto/create-order.dto");
+const guest_create_order_dto_1 = require("./dto/guest-create-order.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
@@ -32,10 +32,39 @@ let PaymentsController = class PaymentsController {
         if (dto.user_id && dto.user_id !== authUserId) {
             throw new common_1.ForbiddenException('user_id does not match authenticated user');
         }
-        return this.paymentsService.createOrder(dto.plan_id, authUserId);
+        return this.paymentsService.createOrder(dto.plan_id, authUserId, {
+            referral_code: dto.referral_code,
+            contact_channel: dto.contact_channel,
+        });
+    }
+    guestOrder(dto) {
+        return this.paymentsService.createGuestOrder(dto);
     }
     getStatus(id, req) {
         return this.paymentsService.getPaymentStatus(id, req.user);
+    }
+    getPublicStatus(id, claim) {
+        if (!claim)
+            throw new common_1.ForbiddenException('claim required');
+        return this.paymentsService.getPublicStatus(id, claim);
+    }
+    notify(id, body) {
+        return this.paymentsService.notifyBuyer(id, body ?? {});
+    }
+    claimAccount(id, body) {
+        if (!body?.claim)
+            throw new common_1.ForbiddenException('claim required');
+        return this.paymentsService.claimAccount(id, body);
+    }
+    updateContact(id, body) {
+        if (!body?.claim)
+            throw new common_1.ForbiddenException('claim required');
+        return this.paymentsService.updateContact(id, body ?? {});
+    }
+    simulate(id, body) {
+        if (!body?.claim)
+            throw new common_1.ForbiddenException('claim required');
+        return this.paymentsService.simulatePayment(id, body.claim);
     }
     findAll(page, limit) {
         const { page: p, limit: l } = (0, pagination_helper_1.parsePagination)(page, limit);
@@ -63,15 +92,24 @@ __decorate([
     (0, common_1.Post)('create-order'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Crear orden de pago (usuario autenticado)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Crear orden de pago (usuario autenticado, con referido opcional)' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Orden creada con QR firmado' }),
     (0, throttler_1.Throttle)({ default: { limit: 10, ttl: 60 * 1000 } }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_order_dto_1.CreateOrderDto, Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], PaymentsController.prototype, "createOrder", null);
+__decorate([
+    (0, common_1.Post)('guest-order'),
+    (0, swagger_1.ApiOperation)({ summary: 'Crear orden de pago guest (sin login)' }),
+    (0, throttler_1.Throttle)({ default: { limit: 10, ttl: 60 * 1000 } }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [guest_create_order_dto_1.GuestCreateOrderDto]),
+    __metadata("design:returntype", void 0)
+], PaymentsController.prototype, "guestOrder", null);
 __decorate([
     (0, common_1.Get)(':id/status'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
@@ -82,6 +120,55 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], PaymentsController.prototype, "getStatus", null);
+__decorate([
+    (0, common_1.Get)(':id/public-status'),
+    (0, swagger_1.ApiOperation)({ summary: 'Estado de pago guest (con claim_token)' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Query)('claim')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], PaymentsController.prototype, "getPublicStatus", null);
+__decorate([
+    (0, common_1.Post)(':id/notify'),
+    (0, swagger_1.ApiOperation)({ summary: 'Enviar licencia por email/SMS al contacto definido' }),
+    (0, throttler_1.Throttle)({ default: { limit: 5, ttl: 60 * 1000 } }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], PaymentsController.prototype, "notify", null);
+__decorate([
+    (0, common_1.Post)(':id/claim-account'),
+    (0, swagger_1.ApiOperation)({ summary: 'Reclamar cuenta guest con claim_token' }),
+    (0, throttler_1.Throttle)({ default: { limit: 5, ttl: 60 * 1000 } }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], PaymentsController.prototype, "claimAccount", null);
+__decorate([
+    (0, common_1.Patch)(':id/contact'),
+    (0, swagger_1.ApiOperation)({ summary: 'Editar datos de contacto sin regenerar el QR' }),
+    (0, throttler_1.Throttle)({ default: { limit: 10, ttl: 60 * 1000 } }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], PaymentsController.prototype, "updateContact", null);
+__decorate([
+    (0, common_1.Post)(':id/simulate'),
+    (0, swagger_1.ApiOperation)({ summary: 'Simular cobro de la pasarela (demo, 7s en el modal)' }),
+    (0, throttler_1.Throttle)({ default: { limit: 5, ttl: 60 * 1000 } }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], PaymentsController.prototype, "simulate", null);
 __decorate([
     (0, common_1.Get)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

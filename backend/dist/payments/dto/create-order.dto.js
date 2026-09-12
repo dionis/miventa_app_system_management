@@ -14,6 +14,8 @@ const class_validator_1 = require("class-validator");
 class CreateOrderDto {
     plan_id;
     user_id;
+    referral_code;
+    contact_channel;
 }
 exports.CreateOrderDto = CreateOrderDto;
 __decorate([
@@ -25,4 +27,15 @@ __decorate([
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateOrderDto.prototype, "user_id", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(32),
+    __metadata("design:type", String)
+], CreateOrderDto.prototype, "referral_code", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsIn)(['email', 'sms', 'both', 'none']),
+    __metadata("design:type", String)
+], CreateOrderDto.prototype, "contact_channel", void 0);
 //# sourceMappingURL=create-order.dto.js.map

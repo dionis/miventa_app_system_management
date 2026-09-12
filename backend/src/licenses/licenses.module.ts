@@ -6,6 +6,6 @@ import { LicenseMailService } from './mail.service';
 @Module({
   controllers: [LicensesController],
   providers: [LicensesService, LicenseMailService],
-  exports: [LicensesService],
+  exports: [LicensesService, LicenseMailService],
 })
 export class LicensesModule {}

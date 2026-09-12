@@ -11,12 +11,13 @@ const common_1 = require("@nestjs/common");
 const payments_controller_1 = require("./payments.controller");
 const payments_service_1 = require("./payments.service");
 const licenses_module_1 = require("../licenses/licenses.module");
+const notify_module_1 = require("../notify/notify.module");
 let PaymentsModule = class PaymentsModule {
 };
 exports.PaymentsModule = PaymentsModule;
 exports.PaymentsModule = PaymentsModule = __decorate([
     (0, common_1.Module)({
-        imports: [licenses_module_1.LicensesModule],
+        imports: [licenses_module_1.LicensesModule, notify_module_1.NotifyModule],
         controllers: [payments_controller_1.PaymentsController],
         providers: [payments_service_1.PaymentsService],
     })

@@ -3,6 +3,8 @@ import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { LicensesService } from './licenses.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 
 @ApiTags('licenses')
 @Controller('api/licenses')
@@ -31,5 +33,15 @@ export class LicensesController {
   @Throttle({ default: { limit: 5, ttl: 60 * 1000 } })
   resend(@Param('paymentId') paymentId: string, @Request() req) {
     return this.licenses.resendEmail(paymentId, req.user);
+  }
+
+  /** Diagnóstico admin: verifica tablas de licencias/referidos/settings. */
+  @Get('health/check')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'staff')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Salud de tablas de licencias (diagnóstico)' })
+  health() {
+    return this.licenses.checkTables();
   }
 }

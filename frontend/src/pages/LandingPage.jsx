@@ -98,6 +98,13 @@ export default function LandingPage() {
                         <LanguageSwitcher />
                         <ThemeToggle />
                         <Link
+                            to="/register"
+                            className="hidden sm:inline-block text-base font-bold py-2.5 px-4 min-h-[44px]"
+                            style={{ color: 'var(--color-text-secondary)' }}
+                        >
+                            {t('register.submit')}
+                        </Link>
+                        <Link
                             to="/login"
                             className="btn-primary text-base py-2.5 px-6 shadow-xl shadow-orange-500/20"
                         >

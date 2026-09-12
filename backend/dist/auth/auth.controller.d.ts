@@ -12,6 +12,7 @@ export declare class AuthController {
         user: any;
     }>;
     register(dto: RegisterDto, res: Response): Promise<{
+        email_sent: boolean;
         access_token: string;
         refresh_token: string;
         user: any;
@@ -24,6 +25,23 @@ export declare class AuthController {
     }>;
     logout(res: Response): Promise<{
         logged_out: boolean;
+    }>;
+    verifyEmail(token: string): Promise<{
+        verified: boolean;
+        already: boolean;
+    } | {
+        verified: boolean;
+        already?: undefined;
+    }>;
+    resendVerification(body: {
+        email?: string;
+        lang?: string;
+    }): Promise<{
+        sent: boolean;
+        already?: undefined;
+    } | {
+        sent: boolean;
+        already: boolean;
     }>;
     getProfile(req: any): Promise<any>;
 }

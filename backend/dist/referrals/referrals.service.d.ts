@@ -14,4 +14,21 @@ export declare class ReferralsService {
     remove(id: string): Promise<{
         deleted: boolean;
     }>;
+    getConfig(): Promise<{
+        referral_discount_percent: number;
+        referral_commission_percent: number;
+    }>;
+    updateConfig(dto: {
+        referral_discount_percent?: number;
+        referral_commission_percent?: number;
+    }): Promise<{
+        referral_discount_percent: number;
+        referral_commission_percent: number;
+    }>;
+    validateCode(raw: string): Promise<{
+        valid: boolean;
+        referral_code: any;
+        referrer_name: any;
+        discount_percent: number;
+    }>;
 }

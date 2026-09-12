@@ -1,4 +1,4 @@
-import { IsUUID, IsOptional } from 'class-validator';
+import { IsUUID, IsOptional, IsString, MaxLength, IsIn } from 'class-validator';
 
 export class CreateOrderDto {
   @IsUUID()
@@ -11,4 +11,13 @@ export class CreateOrderDto {
   @IsOptional()
   @IsUUID()
   user_id?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  referral_code?: string;
+
+  @IsOptional()
+  @IsIn(['email', 'sms', 'both', 'none'])
+  contact_channel?: string;
 }

@@ -7,10 +7,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DashboardService = void 0;
+exports.invalidateDashboardCache = invalidateDashboardCache;
 const common_1 = require("@nestjs/common");
 const supabase_1 = require("../config/supabase");
 const CACHE_TTL_MS = 60 * 1000;
 let cache = null;
+function invalidateDashboardCache() {
+    cache = null;
+}
 let DashboardService = class DashboardService {
     get supabase() {
         return (0, supabase_1.getSupabaseAdmin)();
@@ -19,12 +23,16 @@ let DashboardService = class DashboardService {
         if (cache && Date.now() - cache.at < CACHE_TTL_MS)
             return cache.data;
         const sb = this.supabase;
-        const [salesAgg, activeSubs, totalUsers, activeReferrers, referralsAgg, pendingPayments, unreadLeads,] = await Promise.all([
+        const [salesAgg, completedCount, activeSubs, totalUsers, activeReferrers, referralsAgg, licensesCount, referralUsesAgg, pendingPayments, unreadLeads,] = await Promise.all([
             sb
                 .from('payments')
                 .select('amount,created_at')
                 .eq('status', 'completed')
                 .limit(20000),
+            sb
+                .from('payments')
+                .select('*', { count: 'exact', head: true })
+                .eq('status', 'completed'),
             sb
                 .from('subscriptions')
                 .select('*', { count: 'exact', head: true })
@@ -35,6 +43,8 @@ let DashboardService = class DashboardService {
                 .select('*', { count: 'exact', head: true })
                 .eq('is_active', true),
             sb.from('referrers').select('total_referrals').limit(20000),
+            sb.from('licenses').select('*', { count: 'exact', head: true }),
+            sb.from('referral_uses').select('commission_amount').limit(20000),
             sb
                 .from('payments')
                 .select('*', { count: 'exact', head: true })
@@ -72,13 +82,19 @@ let DashboardService = class DashboardService {
             };
         });
         const totalReferrals = (referralsAgg.data || []).reduce((sum, r) => sum + (r.total_referrals || 0), 0);
+        const referralUses = referralUsesAgg.data || [];
+        const commissionsTotal = Math.round(referralUses.reduce((sum, u) => sum + (parseFloat(u.commission_amount) || 0), 0) * 100) / 100;
         const data = {
             totalSales: Math.round(totalSales * 100) / 100,
             totalTransactions: completed.length,
+            completedPayments: completedCount.count ?? completed.length,
             activeSubscriptions: activeSubs.count || 0,
             totalUsers: totalUsers.count || 0,
             activeReferrers: activeReferrers.count || 0,
             totalReferrals,
+            licensesIssued: licensesCount.count || 0,
+            referralPayments: referralUses.length,
+            commissionsTotal,
             pendingPayments: pendingPayments.count || 0,
             unreadLeads: unreadLeads.count || 0,
             monthlySales,

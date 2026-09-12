@@ -15,10 +15,24 @@ export const envValidationSchema = Joi.object({
   // P1: pagos
   PAYMENTS_QR_SECRET: Joi.string().min(16).optional(),
   PAYMENTS_WEBHOOK_SECRET: Joi.string().min(16).optional(),
+  // Registro: verificación por correo (opcional; sin SMTP solo se loguea el enlace)
+  FRONTEND_URL: Joi.string().uri().optional(),
+  SMTP_HOST: Joi.string().optional(),
+  SMTP_PORT: Joi.number().optional(),
+  SMTP_SECURE: Joi.string().valid('true', 'false').optional(),
+  SMTP_USER: Joi.string().optional(),
+  SMTP_PASS: Joi.string().optional(),
+  SMTP_FROM: Joi.string().optional(),
   // P1: licencias POS (port Dart). Debe coincidir con el validador MiVenta.
   LICENSE_SECRET: Joi.string().min(16).optional(),
   // Email de licencias (Resend). Sin esto el correo queda pendiente + reenvío manual.
   RESEND_API_KEY: Joi.string().optional(),
   MAIL_FROM: Joi.string().optional(),
+  // SMS de licencias (Twilio, opcional; sin esto solo se loguea).
+  TWILIO_ACCOUNT_SID: Joi.string().optional(),
+  TWILIO_AUTH_TOKEN: Joi.string().optional(),
+  TWILIO_FROM: Joi.string().optional(),
+  // Demo: simulación del cobro (solo con claim del dueño).
+  PAYMENT_SIMULATION_ENABLED: Joi.string().valid('true', 'false').optional(),
   NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
 });

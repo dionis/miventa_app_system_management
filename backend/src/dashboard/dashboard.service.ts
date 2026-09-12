@@ -4,6 +4,11 @@ import { getSupabaseAdmin } from '../config/supabase';
 const CACHE_TTL_MS = 60 * 1000;
 let cache: { at: number; data: any } | null = null;
 
+/** Invalida el caché de stats (llamar al confirmar/cancelar pagos, referidos, etc.). */
+export function invalidateDashboardCache() {
+  cache = null;
+}
+
 @Injectable()
 export class DashboardService {
   private get supabase() {
@@ -18,10 +23,13 @@ export class DashboardService {
     // P1: counts en paralelo (antes: 7 queries secuenciales + 6 en loop)
     const [
       salesAgg,
+      completedCount,
       activeSubs,
       totalUsers,
       activeReferrers,
       referralsAgg,
+      licensesCount,
+      referralUsesAgg,
       pendingPayments,
       unreadLeads,
     ] = await Promise.all([
@@ -31,6 +39,11 @@ export class DashboardService {
         .select('amount,created_at')
         .eq('status', 'completed')
         .limit(20000),
+      // Conteo EXACTO de pagos completados (sin tope de 20000)
+      sb
+        .from('payments')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'completed'),
       sb
         .from('subscriptions')
         .select('*', { count: 'exact', head: true })
@@ -41,6 +54,9 @@ export class DashboardService {
         .select('*', { count: 'exact', head: true })
         .eq('is_active', true),
       sb.from('referrers').select('total_referrals').limit(20000),
+      // Llaves emitidas + atribuciones por referido (fuente para liquidar comisiones)
+      sb.from('licenses').select('*', { count: 'exact', head: true }),
+      sb.from('referral_uses').select('commission_amount').limit(20000),
       sb
         .from('payments')
         .select('*', { count: 'exact', head: true })
@@ -89,13 +105,25 @@ export class DashboardService {
       0,
     );
 
+    const referralUses = referralUsesAgg.data || [];
+    const commissionsTotal =
+      Math.round(
+        referralUses.reduce((sum, u) => sum + (parseFloat(u.commission_amount) || 0), 0) * 100,
+      ) / 100;
+
     const data = {
       totalSales: Math.round(totalSales * 100) / 100,
       totalTransactions: completed.length,
+      // Conteo exacto de pagos completados (sin tope): cantidad de pagos realizados
+      completedPayments: completedCount.count ?? completed.length,
       activeSubscriptions: activeSubs.count || 0,
       totalUsers: totalUsers.count || 0,
       activeReferrers: activeReferrers.count || 0,
       totalReferrals,
+      // Licencias emitidas + pagos con referido + comisiones a liquidar
+      licensesIssued: licensesCount.count || 0,
+      referralPayments: referralUses.length,
+      commissionsTotal,
       pendingPayments: pendingPayments.count || 0,
       unreadLeads: unreadLeads.count || 0,
       monthlySales,
