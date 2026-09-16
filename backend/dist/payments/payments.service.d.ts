@@ -1,12 +1,14 @@
 import { LicensesService } from '../licenses/licenses.service';
 import { LicenseMailService } from '../licenses/mail.service';
 import { SmsService } from '../notify/sms.service';
+import { TransfermovilService } from '../transfermovil/transfermovil.service';
 export declare class PaymentsService {
     private readonly licenses;
     private readonly licenseMail;
     private readonly sms;
+    private readonly tmService;
     private readonly logger;
-    constructor(licenses: LicensesService, licenseMail: LicenseMailService, sms: SmsService);
+    constructor(licenses: LicensesService, licenseMail: LicenseMailService, sms: SmsService, tmService: TransfermovilService);
     private get supabase();
     private getReferralConfig;
     private findReferrer;
@@ -25,6 +27,8 @@ export declare class PaymentsService {
         currency: any;
         plan_name: any;
         qr_code: string;
+        qr_data: any;
+        tm_order_id: number;
         status: string;
     }>;
     createGuestOrder(dto: {
@@ -43,6 +47,8 @@ export declare class PaymentsService {
         currency: any;
         plan_name: any;
         qr_code: string;
+        qr_data: any;
+        tm_order_id: number;
         status: string;
     }>;
     private checkClaim;

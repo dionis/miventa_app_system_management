@@ -15,6 +15,7 @@ import { LicensesService } from '../licenses/licenses.service';
 import { LicenseMailService } from '../licenses/mail.service';
 import { SmsService } from '../notify/sms.service';
 import { invalidateDashboardCache } from '../dashboard/dashboard.service';
+import { TransfermovilService } from '../transfermovil/transfermovil.service';
 
 function round2(n: number): number {
   return Math.round(Number(n) * 100) / 100;
@@ -28,6 +29,7 @@ export class PaymentsService {
     private readonly licenses: LicensesService,
     private readonly licenseMail: LicenseMailService,
     private readonly sms: SmsService,
+    private readonly tmService: TransfermovilService,
   ) {}
 
   private get supabase() {
@@ -166,19 +168,35 @@ export class PaymentsService {
       throw payError ?? new BadRequestException('Could not create payment');
     }
 
-    const qrPayload = signQrPayload({
-      transaction_ref: transactionRef,
-      amount,
-      currency: (plan as any).currency,
-      plan: (plan as any).name,
-      payment_id: (payment as any).id,
-    });
-    const qrCodeBase64 = await QRCode.toDataURL(qrPayload, {
-      width: 300,
-      margin: 2,
-      color: { dark: '#000000', light: '#FFFFFF' },
-    });
-    await this.supabase.from('payments').update({ qr_code_data: qrCodeBase64 }).eq('id', (payment as any).id);
+    // Iniciar pago en Transfermóvil
+    let tmQrCode: string;
+    let tmOrderId: number = 0;
+    let tmQrData: any;
+    try {
+      const tmResult = await this.tmService.initiatePayment((payment as any).id);
+      tmQrCode = tmResult.qr_code;
+      tmOrderId = tmResult.tm_order_id;
+      tmQrData = tmResult.qr_data;
+    } catch (tmError: any) {
+      this.logger.error(`TM initiatePayment failed for payment ${(payment as any).id}: ${tmError.message}`);
+      // Fallback: usar QR local firmado
+      const qrPayload = signQrPayload({
+        transaction_ref: transactionRef,
+        amount,
+        currency: (plan as any).currency,
+        plan: (plan as any).name,
+        payment_id: (payment as any).id,
+      });
+      tmQrCode = await QRCode.toDataURL(qrPayload, {
+        width: 300,
+        margin: 2,
+        color: { dark: '#000000', light: '#FFFFFF' },
+      });
+      tmQrData = null;
+      tmOrderId = 0;
+    }
+
+    await this.supabase.from('payments').update({ qr_code_data: tmQrCode }).eq('id', (payment as any).id);
 
     await this.supabase.from('event_logs').insert({
       actor_id: args.userId,
@@ -193,6 +211,7 @@ export class PaymentsService {
         referral_code: referrer?.referral_code ?? null,
         guest: !args.userId,
         transaction_ref: transactionRef,
+        tm_order_id: tmOrderId,
       },
     });
 
@@ -205,7 +224,9 @@ export class PaymentsService {
       discount_percent: discountPercent,
       currency: (plan as any).currency,
       plan_name: (plan as any).name,
-      qr_code: qrCodeBase64,
+      qr_code: tmQrCode,
+      qr_data: tmQrData,
+      tm_order_id: tmOrderId,
       status: 'pending',
     };
   }

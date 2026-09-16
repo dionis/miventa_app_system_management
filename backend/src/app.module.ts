@@ -15,6 +15,7 @@ import { PlansModule } from './plans/plans.module';
 import { MailModule } from './mail/mail.module';
 import { LicensesModule } from './licenses/licenses.module';
 import { NotifyModule } from './notify/notify.module';
+import { TransfermovilModule } from './transfermovil/transfermovil.module';
 import { envValidationSchema } from './config/env.validation';
 
 @Module({
@@ -38,6 +39,7 @@ import { envValidationSchema } from './config/env.validation';
     PlansModule,
     LicensesModule,
     NotifyModule,
+    TransfermovilModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

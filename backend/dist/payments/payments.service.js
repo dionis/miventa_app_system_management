@@ -55,6 +55,7 @@ const licenses_service_1 = require("../licenses/licenses.service");
 const mail_service_1 = require("../licenses/mail.service");
 const sms_service_1 = require("../notify/sms.service");
 const dashboard_service_1 = require("../dashboard/dashboard.service");
+const transfermovil_service_1 = require("../transfermovil/transfermovil.service");
 function round2(n) {
     return Math.round(Number(n) * 100) / 100;
 }
@@ -62,11 +63,13 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
     licenses;
     licenseMail;
     sms;
+    tmService;
     logger = new common_1.Logger(PaymentsService_1.name);
-    constructor(licenses, licenseMail, sms) {
+    constructor(licenses, licenseMail, sms, tmService) {
         this.licenses = licenses;
         this.licenseMail = licenseMail;
         this.sms = sms;
+        this.tmService = tmService;
     }
     get supabase() {
         return (0, supabase_1.getSupabaseAdmin)();
@@ -186,19 +189,33 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
             await this.supabase.from('subscriptions').delete().eq('id', subscription.id);
             throw payError ?? new common_1.BadRequestException('Could not create payment');
         }
-        const qrPayload = (0, qr_sign_util_1.signQrPayload)({
-            transaction_ref: transactionRef,
-            amount,
-            currency: plan.currency,
-            plan: plan.name,
-            payment_id: payment.id,
-        });
-        const qrCodeBase64 = await QRCode.toDataURL(qrPayload, {
-            width: 300,
-            margin: 2,
-            color: { dark: '#000000', light: '#FFFFFF' },
-        });
-        await this.supabase.from('payments').update({ qr_code_data: qrCodeBase64 }).eq('id', payment.id);
+        let tmQrCode;
+        let tmOrderId = 0;
+        let tmQrData;
+        try {
+            const tmResult = await this.tmService.initiatePayment(payment.id);
+            tmQrCode = tmResult.qr_code;
+            tmOrderId = tmResult.tm_order_id;
+            tmQrData = tmResult.qr_data;
+        }
+        catch (tmError) {
+            this.logger.error(`TM initiatePayment failed for payment ${payment.id}: ${tmError.message}`);
+            const qrPayload = (0, qr_sign_util_1.signQrPayload)({
+                transaction_ref: transactionRef,
+                amount,
+                currency: plan.currency,
+                plan: plan.name,
+                payment_id: payment.id,
+            });
+            tmQrCode = await QRCode.toDataURL(qrPayload, {
+                width: 300,
+                margin: 2,
+                color: { dark: '#000000', light: '#FFFFFF' },
+            });
+            tmQrData = null;
+            tmOrderId = 0;
+        }
+        await this.supabase.from('payments').update({ qr_code_data: tmQrCode }).eq('id', payment.id);
         await this.supabase.from('event_logs').insert({
             actor_id: args.userId,
             action: 'payment_initiated',
@@ -212,6 +229,7 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
                 referral_code: referrer?.referral_code ?? null,
                 guest: !args.userId,
                 transaction_ref: transactionRef,
+                tm_order_id: tmOrderId,
             },
         });
         return {
@@ -223,7 +241,9 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
             discount_percent: discountPercent,
             currency: plan.currency,
             plan_name: plan.name,
-            qr_code: qrCodeBase64,
+            qr_code: tmQrCode,
+            qr_data: tmQrData,
+            tm_order_id: tmOrderId,
             status: 'pending',
         };
     }
@@ -658,6 +678,7 @@ exports.PaymentsService = PaymentsService = PaymentsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [licenses_service_1.LicensesService,
         mail_service_1.LicenseMailService,
-        sms_service_1.SmsService])
+        sms_service_1.SmsService,
+        transfermovil_service_1.TransfermovilService])
 ], PaymentsService);
 //# sourceMappingURL=payments.service.js.map

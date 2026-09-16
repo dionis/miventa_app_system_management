@@ -34,5 +34,15 @@ export const envValidationSchema = Joi.object({
   TWILIO_FROM: Joi.string().optional(),
   // Demo: simulación del cobro (solo con claim del dueño).
   PAYMENT_SIMULATION_ENABLED: Joi.string().valid('true', 'false').optional(),
+  // Transfermóvil WS External Payment
+  TM_WS_USERNAME: Joi.string().optional(),
+  TM_WS_SOURCE: Joi.string().optional(),
+  TM_WS_SEED: Joi.string().optional(),
+  TM_WS_BASE_URL: Joi.string().uri().optional(),
+  TM_MERCHANT_NOTIFY_URL: Joi.string().uri().optional(),
+  // Enzona API (Opcional)
+  ENZONA_CONSUMER_KEY: Joi.string().optional(),
+  ENZONA_CONSUMER_SECRET: Joi.string().optional(),
+  ENZONA_MERCHANT_UUID: Joi.string().optional(),
   NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
 });

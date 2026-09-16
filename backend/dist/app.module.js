@@ -24,6 +24,7 @@ const plans_module_1 = require("./plans/plans.module");
 const mail_module_1 = require("./mail/mail.module");
 const licenses_module_1 = require("./licenses/licenses.module");
 const notify_module_1 = require("./notify/notify.module");
+const transfermovil_module_1 = require("./transfermovil/transfermovil.module");
 const env_validation_1 = require("./config/env.validation");
 let AppModule = class AppModule {
 };
@@ -50,6 +51,7 @@ exports.AppModule = AppModule = __decorate([
             plans_module_1.PlansModule,
             licenses_module_1.LicensesModule,
             notify_module_1.NotifyModule,
+            transfermovil_module_1.TransfermovilModule,
         ],
         providers: [{ provide: core_1.APP_GUARD, useClass: throttler_1.ThrottlerGuard }],
     })

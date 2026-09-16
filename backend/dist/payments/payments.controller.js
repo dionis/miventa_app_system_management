@@ -22,6 +22,7 @@ const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
 const pagination_helper_1 = require("../common/helpers/pagination.helper");
+const payment_response_dto_1 = require("./dto/payment-response.dto");
 let PaymentsController = class PaymentsController {
     paymentsService;
     constructor(paymentsService) {
@@ -93,7 +94,9 @@ __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Crear orden de pago (usuario autenticado, con referido opcional)' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Orden creada con QR firmado' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Orden creada con QR firmado', type: payment_response_dto_1.CreateOrderResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Plan no encontrado o datos inválidos' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Autenticación requerida' }),
     (0, throttler_1.Throttle)({ default: { limit: 10, ttl: 60 * 1000 } }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Request)()),
@@ -104,6 +107,8 @@ __decorate([
 __decorate([
     (0, common_1.Post)('guest-order'),
     (0, swagger_1.ApiOperation)({ summary: 'Crear orden de pago guest (sin login)' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Orden guest creada con QR y claim_token', type: payment_response_dto_1.CreateOrderResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Email/teléfono requerido o plan inválido' }),
     (0, throttler_1.Throttle)({ default: { limit: 10, ttl: 60 * 1000 } }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -114,6 +119,11 @@ __decorate([
     (0, common_1.Get)(':id/status'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener estado de pago (usuario autenticado)' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'ID del pago' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Estado del pago con licencia si existe', type: payment_response_dto_1.PaymentStatusResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'No autorizado para ver este pago' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Pago no encontrado' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -122,7 +132,12 @@ __decorate([
 ], PaymentsController.prototype, "getStatus", null);
 __decorate([
     (0, common_1.Get)(':id/public-status'),
-    (0, swagger_1.ApiOperation)({ summary: 'Estado de pago guest (con claim_token)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Estado de pago guest (con claim_token, sin JWT)' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'ID del pago' }),
+    (0, swagger_1.ApiQuery)({ name: 'claim', required: true, description: 'Claim token retornado al crear la orden' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Estado público del pago', type: payment_response_dto_1.PublicStatusResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Claim token inválido o requerido' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Pago no encontrado' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Query)('claim')),
     __metadata("design:type", Function),
@@ -132,6 +147,21 @@ __decorate([
 __decorate([
     (0, common_1.Post)(':id/notify'),
     (0, swagger_1.ApiOperation)({ summary: 'Enviar licencia por email/SMS al contacto definido' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'ID del pago' }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: 'object',
+            properties: {
+                claim: { type: 'string', description: 'Claim token (requerido para guest)' },
+                email: { type: 'string', format: 'email', description: 'Email opcional para sobrescribir' },
+                phone: { type: 'string', description: 'Teléfono opcional para sobrescribir' },
+                channel: { type: 'string', enum: ['email', 'sms', 'both', 'none'], description: 'Canal de envío' },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Resultado del envío', type: payment_response_dto_1.NotifyResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Licencia no lista aún' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Claim token inválido' }),
     (0, throttler_1.Throttle)({ default: { limit: 5, ttl: 60 * 1000 } }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -142,6 +172,21 @@ __decorate([
 __decorate([
     (0, common_1.Post)(':id/claim-account'),
     (0, swagger_1.ApiOperation)({ summary: 'Reclamar cuenta guest con claim_token' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'ID del pago' }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: 'object',
+            required: ['claim', 'password'],
+            properties: {
+                claim: { type: 'string', description: 'Claim token' },
+                password: { type: 'string', minLength: 8, description: 'Nueva contraseña (mín 8 chars)' },
+                full_name: { type: 'string', description: 'Nombre completo opcional' },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Cuenta reclamada exitosamente' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Contraseña muy corta o cuenta no creada' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Claim token inválido' }),
     (0, throttler_1.Throttle)({ default: { limit: 5, ttl: 60 * 1000 } }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -152,6 +197,21 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id/contact'),
     (0, swagger_1.ApiOperation)({ summary: 'Editar datos de contacto sin regenerar el QR' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'ID del pago' }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: 'object',
+            properties: {
+                claim: { type: 'string', description: 'Claim token (requerido)' },
+                email: { type: 'string', format: 'email' },
+                phone: { type: 'string' },
+                channel: { type: 'string', enum: ['email', 'sms', 'both', 'none'] },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Contacto actualizado' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Pago ya procesado o datos inválidos' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Claim token inválido' }),
     (0, throttler_1.Throttle)({ default: { limit: 10, ttl: 60 * 1000 } }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -162,6 +222,17 @@ __decorate([
 __decorate([
     (0, common_1.Post)(':id/simulate'),
     (0, swagger_1.ApiOperation)({ summary: 'Simular cobro de la pasarela (demo, 7s en el modal)' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'ID del pago' }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: 'object',
+            required: ['claim'],
+            properties: { claim: { type: 'string' } },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Pago simulado completado', type: payment_response_dto_1.SimulateResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Pago ya procesado' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Claim token inválido o simulación deshabilitada' }),
     (0, throttler_1.Throttle)({ default: { limit: 5, ttl: 60 * 1000 } }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -174,6 +245,10 @@ __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('admin', 'staff'),
     (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Listar todos los pagos (admin/staff)' }),
+    (0, swagger_1.ApiQuery)({ name: 'page', required: false, example: 1 }),
+    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, example: 20 }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Lista paginada de pagos' }),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
@@ -185,7 +260,9 @@ __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('admin'),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Confirmación manual (solo admin, temporal)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Confirmación manual de pago (solo admin)' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'ID del pago' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Pago confirmado y licencia emitida' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -193,7 +270,21 @@ __decorate([
 ], PaymentsController.prototype, "confirmPayment", null);
 __decorate([
     (0, common_1.Post)('webhook/confirm'),
-    (0, swagger_1.ApiOperation)({ summary: 'Webhook del proveedor de pagos (firmado por secreto)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Webhook genérico de proveedor de pagos (firmado por secreto)' }),
+    (0, swagger_1.ApiHeader)({ name: 'x-webhook-secret', required: true, description: 'Secreto compartido PAYMENTS_WEBHOOK_SECRET' }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: 'object',
+            required: ['payment_id', 'status'],
+            properties: {
+                payment_id: { type: 'string' },
+                status: { type: 'string', enum: ['completed', 'failed'] },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Webhook procesado', type: payment_response_dto_1.WebhookResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Secreto inválido' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'payment_id requerido' }),
     (0, throttler_1.Throttle)({ default: { limit: 60, ttl: 60 * 1000 } }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Headers)('x-webhook-secret')),

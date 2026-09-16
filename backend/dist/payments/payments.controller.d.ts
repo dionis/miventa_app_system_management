@@ -16,6 +16,8 @@ export declare class PaymentsController {
         currency: any;
         plan_name: any;
         qr_code: string;
+        qr_data: any;
+        tm_order_id: number;
         status: string;
     }>;
     guestOrder(dto: GuestCreateOrderDto): Promise<{
@@ -28,6 +30,8 @@ export declare class PaymentsController {
         currency: any;
         plan_name: any;
         qr_code: string;
+        qr_data: any;
+        tm_order_id: number;
         status: string;
     }>;
     getStatus(id: string, req: any): Promise<any>;
