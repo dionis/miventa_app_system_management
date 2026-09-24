@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { TransfermovilController } from './transfermovil.controller';
@@ -14,7 +14,7 @@ import { LicensesModule } from '../licenses/licenses.module';
       maxRedirects: 5,
     }),
     ConfigModule,
-    PaymentsModule,
+    forwardRef(() => PaymentsModule),
     LicensesModule,
   ],
   controllers: [TransfermovilController],

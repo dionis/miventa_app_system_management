@@ -10,6 +10,8 @@ import {
   UseGuards,
   Request,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiHeader, ApiParam, ApiBody } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
@@ -17,13 +19,18 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { TransfermovilService } from './transfermovil.service';
+import { PaymentsService } from '../payments/payments.service';
 import { TmPayOrderDto, TmRefundPayDto, TmWebhookNotificationDto, TmRefundWebhookNotificationDto } from './dto/tm-pay-order.dto';
 import { TmInitiateResponseDto, TmStatusResponseDto, WebhookResponseDto } from '../payments/dto/payment-response.dto';
 
 @ApiTags('transfermovil')
 @Controller('api/payments')
 export class TransfermovilController {
-  constructor(private readonly tmService: TransfermovilService) {}
+  constructor(
+    private readonly tmService: TransfermovilService,
+    @Inject(forwardRef(() => PaymentsService))
+    private readonly paymentsService: PaymentsService,
+  ) {}
 
   @Post(':id/tm/initiate')
   @UseGuards(JwtAuthGuard)
@@ -97,7 +104,16 @@ export class TransfermovilController {
       throw new HttpException('Invalid webhook secret', HttpStatus.UNAUTHORIZED);
     }
 
-    await this.tmService.handleWebhookNotification(notification as any);
+    const result = await this.tmService.handleWebhookNotification(notification as any);
+    
+    if (result.action === 'confirm' && result.paymentId) {
+      try {
+        await this.paymentsService.confirmPayment(result.paymentId);
+      } catch (error) {
+        this.tmService['logger'].error(`confirmPayment failed for ${result.paymentId}: ${error.message}`);
+      }
+    }
+    
     return { success: true };
   }
 

@@ -18,9 +18,10 @@ let PaymentsModule = class PaymentsModule {
 exports.PaymentsModule = PaymentsModule;
 exports.PaymentsModule = PaymentsModule = __decorate([
     (0, common_1.Module)({
-        imports: [licenses_module_1.LicensesModule, notify_module_1.NotifyModule, transfermovil_module_1.TransfermovilModule],
+        imports: [licenses_module_1.LicensesModule, notify_module_1.NotifyModule, (0, common_1.forwardRef)(() => transfermovil_module_1.TransfermovilModule)],
         controllers: [payments_controller_1.PaymentsController],
         providers: [payments_service_1.PaymentsService],
+        exports: [payments_service_1.PaymentsService],
     })
 ], PaymentsModule);
 //# sourceMappingURL=payments.module.js.map

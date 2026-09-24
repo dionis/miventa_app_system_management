@@ -1,7 +1,6 @@
 import { Injectable, Logger, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TmHttpClient } from './clients/tm-http.client';
-import { PaymentsService } from '../payments/payments.service';
 import { LicensesService } from '../licenses/licenses.service';
 import { getSupabaseAdmin } from '../config/supabase';
 import {
@@ -19,7 +18,6 @@ export class TransfermovilService {
 
   constructor(
     private readonly tmClient: TmHttpClient,
-    private readonly paymentsService: PaymentsService,
     private readonly licensesService: LicensesService,
     private readonly configService: ConfigService,
   ) {
@@ -67,27 +65,27 @@ export class TransfermovilService {
     return tmResponse;
   }
 
-  async handleWebhookNotification(notification: TmWebhookNotification): Promise<void> {
+  async handleWebhookNotification(notification: TmWebhookNotification): Promise<{ paymentId: string; action: 'confirm' | 'fail' }> {
     this.logger.log(`TM Webhook received: ExternalId=${notification.ExternalId}, Status=${notification.Status}`);
 
     const { data: payment } = await this.supabase
       .from('payments')
-      .select('*')
+      .select('id, status')
       .eq('transaction_ref', notification.ExternalId)
       .single();
 
     if (!payment) {
       this.logger.warn(`Payment not found for ExternalId: ${notification.ExternalId}`);
-      return;
+      return { paymentId: '', action: 'fail' };
     }
 
     if (payment.status === 'completed') {
       this.logger.log(`Payment ${payment.id} already completed`);
-      return;
+      return { paymentId: payment.id, action: 'fail' };
     }
 
     if (notification.Status === '1') {
-      await this.confirmPayment(payment.id);
+      return { paymentId: payment.id, action: 'confirm' };
     } else {
       await this.supabase
         .from('payments')
@@ -105,6 +103,7 @@ export class TransfermovilService {
           tm_id: notification.TmId,
         },
       });
+      return { paymentId: payment.id, action: 'fail' };
     }
   }
 
@@ -154,14 +153,6 @@ export class TransfermovilService {
       .eq('id', referrerId)
       .single();
     return Number(data?.total_referrals || 0);
-  }
-
-  private async confirmPayment(paymentId: string): Promise<void> {
-    const result = await this.paymentsService.confirmPayment(paymentId);
-
-    if (result.licenseError === 'license-pending') {
-      this.logger.warn(`License pending for payment ${paymentId}: ${result.licenseReason}`);
-    }
   }
 
   async queryStatus(paymentId: string): Promise<string> {
